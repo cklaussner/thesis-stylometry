@@ -1,0 +1,23 @@
+Files/directories here are:
+
+text/           A set of books from Gutenberg project: almost all
+                works of Dickens and Colins(including co-authored
+                books). And the set of 18th/19th century books used by
+                Tabata. The names of the files are their gutenberg_id 
+                with extension 'txt'. From each file the following are
+                deleted.
+                    - Gutenberg header and footer
+                    - table of contents (if there is one)
+                    - preface/introduction written by others
+                    - limited markup employed by transcribers (e.g., '_'
+                      for italic, '=' for bold)
+                    - footnotes by editor/publisher
+                    - notes about names/locations of illustrations.
+tabata/         Data from tabata (also includes a dummy map for
+                working with Gabmap).
+data.csv        File with name/author of each book in text/, as well
+                as the label used by Tabata.
+nltk-tok-tag.py A script to create tokenized/tagged version of the
+                text.
+bigram.py       A script to output bigrams given a file with a token
+                on each line.
