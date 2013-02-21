@@ -1,7 +1,7 @@
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% centering of the data before whitening
-function [newVectors,meanValue] = rmvmean(vectors);
+function [newVectors] = rmvmean(vectors);
 
   newVectors = zeros (size (vectors));
   meanValue = mean (vectors')';

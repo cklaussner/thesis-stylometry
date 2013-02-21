@@ -6,5 +6,5 @@ function [newVectors, whiteningMatrix, dewhiteningMatrix] = whiten(vectors, E, D
 
   % Project to the eigenvectors of the covariance matrix.
   % Whiten the samples and reduce dimension simultaneously.
-  if b_verbose, fprintf ('Whitening...\n'); end
+  %if b_verbose, fprintf ('Whitening...\n'); end
   newVectors =  whiteningMatrix * vectors;

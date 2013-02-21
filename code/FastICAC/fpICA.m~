@@ -1,6 +1,4 @@
 
-
-
 function [A, W] = fpICA(X, whiteningMatrix, dewhiteningMatrix, numOfIC)
 
 
