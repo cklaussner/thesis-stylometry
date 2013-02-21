@@ -1,0 +1,8 @@
+
+function [E, D] = pcavec(vectors);
+
+
+  covarianceMatrix = cov(vectors', 1);
+
+  % Calculate the eigenvalues and eigenvectors of covariance matrix.
+  [E, D] = eig (covarianceMatrix);
