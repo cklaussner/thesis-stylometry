@@ -24,4 +24,34 @@ spDtm <- removeSparseTerms(dtm, 0.4) # 2nd argument indication of sparsity in ma
 
 #############   centering  ############
 
+dtmCent <- rmvMean(spDtm)
+newVectors <- dtmCent[1] # get new centered vectors
+mixedmean <- dtmCent[2] # get mean deducted for later
+
+############ whitening ############## 
+
+vals <- pcamat(newVectors)
+eigenvals <- vals[1]
+eigenvecs <- vals[2]
+
+#pcas= whitenv(spDtm,eigenvals, eigenvecs)  # calculate new components
+
+############# ica ###################
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
