@@ -1,10 +1,11 @@
-
 library(tm)  
 library (plyr)
+library(far) 
 
 source("preprocessing/prepMat.R")
-
-
+source("ica/rmvMean.R")
+source("ica/svdMat.R")
+source("ica/pcamat.R")
 ####"/home/carmen/Dropbox/Thesis/Data/text/SpecializedSet/"
 
 
@@ -15,7 +16,7 @@ loc <- (args[1])
 ################################## text preprocessing  #######################################
 
 dtm <- prepMat(loc)   # dtm with tf weighting
-spDtm <- removeSparseTerms(dtm, 0.4) # 2nd argument indication of sparsity in matrix 
+spDtm <- removeSparseTerms(dtm, 0.8) # 2nd argument indication of sparsity in matrix 
 
 
 ######################################### ICA ####################################
@@ -25,33 +26,15 @@ spDtm <- removeSparseTerms(dtm, 0.4) # 2nd argument indication of sparsity in ma
 #############   centering  ############
 
 dtmCent <- rmvMean(spDtm)
-newVectors <- dtmCent[1] # get new centered vectors
-mixedmean <- dtmCent[2] # get mean deducted for later
+#newVectors <- dtmCent[1] # get new centered vectors
+#mixedmean <- dtmCent[2] # get mean deducted for later
 
 ############ whitening ############## 
 
-vals <- pcamat(newVectors)
-eigenvals <- vals[1]
-eigenvecs <- vals[2]
-
-#pcas= whitenv(spDtm,eigenvals, eigenvecs)  # calculate new components
-
+pc <- svdMat(dtmCent)  # calculate new components with svd 
+#pc <-pcamat(dtmCent)
 ############# ica ###################
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+#ic <- ica(pc,noOfIC)
 
