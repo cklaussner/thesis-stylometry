@@ -32,9 +32,10 @@ dtmCent <- rmvMean(spDtm)
 ############ whitening ############## 
 
 pc <- svdMat(dtmCent)  # calculate new components with svd 
+xwhiten <- getwhiteningMatrix()
 #pc <-pcamat(dtmCent)
 ############# ica ###################
 
 
-#ic <- ica(pc,noOfIC)
+#ic <- ica(pc,xwhiten, noOfIC)
 

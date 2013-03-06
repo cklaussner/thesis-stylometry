@@ -4,6 +4,7 @@
 # not sure this is correct, but gives back right dim. so that's a start
 
 ## take mean-normalized vectors and perform svd - more stable way to do decorrelation than eigenvalue decomposition
+
 svdMat <- function(nV){ # should be in format doc-term
   
   print("svd-ing...")
@@ -18,6 +19,8 @@ svdMat <- function(nV){ # should be in format doc-term
   #orthV <- orthonormalization(V,basis = TRUE,norm = TRUE) # Gram-Schmidt Orthnormalization
   
   #V <- orthV
+  whitenM <- t(V)  # whitening matrix
+  
   A <- t(V)%*%t(nV)  # take transpose - we want V not V^T multiplied by term-doc matrix
   
   
@@ -34,5 +37,7 @@ svdMat <- function(nV){ # should be in format doc-term
   
 }
 
-
+getwhiteningMatrix <- function() {
+  return whitenM
+}
 
