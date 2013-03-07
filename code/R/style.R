@@ -1,11 +1,12 @@
 library(tm)  
 library (plyr)
-library(far) 
+
 
 source("preprocessing/prepMat.R")
 source("ica/rmvMean.R")
 source("ica/svdMat.R")
 source("ica/pcamat.R")
+source("ica/ica.R")
 ####"/home/carmen/Dropbox/Thesis/Data/text/SpecializedSet/"
 
 
@@ -16,7 +17,7 @@ loc <- (args[1])
 ################################## text preprocessing  #######################################
 
 dtm <- prepMat(loc)   # dtm with tf weighting
-spDtm <- removeSparseTerms(dtm, 0.8) # 2nd argument indication of sparsity in matrix 
+spDtm <- removeSparseTerms(dtm, 0.4) # 2nd argument indication of sparsity in matrix 
 
 
 ######################################### ICA ####################################

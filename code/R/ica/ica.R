@@ -8,7 +8,7 @@ ica <- function(pc,xwhiten,numOfIC){
   
   #checking sizes
   #######################################
-  msize <- size(pc)
+  msize <- dim(pc)
   featureSize <- msize[1] 
   numSamples <- msize[2] 
   
@@ -39,7 +39,7 @@ ica <- function(pc,xwhiten,numOfIC){
     
     i <- 1
     
-    while (i < maxNumIteration){   # define no of Attempts to find component
+    while (i < maxNumIteration){   # define max no. of dttempts to find component
       
       
       w <- w - B%*%t(B)%*%w              #project vector into space orthogonal to space spanned by earlier found basis vectors
@@ -52,22 +52,26 @@ ica <- function(pc,xwhiten,numOfIC){
         
         W[round, ] <- t(w)%*%xwhiten # calculate ICA filter???
         
-        
-      }{break} # ICA ready - do next one...
+           break
+      } # ICA ready - do next one...
+      
+      wOld2 <- wOld
+      wOld <- w
+      
+      hypTan <- tanh(a1*t(pc)*w)
+      w <- (pc%*%hyptan-a1*t(sum(1-hypTan^2)%*%w)%/%numSamples) 
+      
+      w <- w%/%spectral.norm(w)
+      i <- i+1
+      
+      
       
      }
     
-    wOld2 <- wOld
-    wOld <- w
-    
-    hypTan <- tanh(a1*t(pc)*w)
-    w <- (pc%*%hyptan-a1*  t(      )%*%w)%/%numSamples) 
-    
-    w <- w%/%spectral.norm(w)
-    i <- i+1
+    round <- round +1 
      
   }
   
-  round <- round +1  
+   
   
 }
