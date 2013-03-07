@@ -1,6 +1,7 @@
 library(matrixcalc)
 
 
+
 ica <- function(pc,xwhiten,numOfIC){
   
   # normally pc should be term-doc matrix --TODO maybe put in a check
@@ -18,6 +19,7 @@ ica <- function(pc,xwhiten,numOfIC){
   epsilon <- 0.0001 # defining max.difference between new and old weight vector w 
   a1 <- 1    # sth. for nonlinearity calculation
   B <- matrix(0,nrow = featureSize,ncol=featureSize) # create matrix for saving ICs
+  S <- matrix(0,nrow = numOfIC,ncol=featureSize)  # TODO: This may cause problems if not enough ICs are found
   round = 1 # - will have as many rounds as one needs components
   maxNumIteration <- 1000
   
@@ -50,16 +52,19 @@ ica <- function(pc,xwhiten,numOfIC){
         B[, round] <- w   # save new vector as final component
         # put here code for A mixing matrix if want to retrieve as well
         
-        W[round, ] <- t(w)%*%xwhiten # calculate ICA filter???
-        
-           break
-      } # ICA ready - do next one...
+        W[round, ] <<- t(w)%*%xwhiten # calculate ICA filter???
+        S[round, ] <<- t(w)%*%xwhiten # test variable
+           break # ICA ready - do next one...
+      } 
       
       wOld2 <- wOld
       wOld <- w
       
-      hypTan <- tanh(a1*t(pc)*w)
-      w <- (pc%*%hyptan-a1*t(sum(1-hypTan^2)%*%w)%/%numSamples) 
+      
+      hypTan <- tanh(a1*t(pc)%*%w)
+      gp <- 1-hypTan^2
+      
+      w <- (pc%*%hypTan - a1*sum(gp)*w)%/%numSamples    # rmv transpose before sum, since its normally ony 1x1 - probably no diff.
       
       w <- w%/%spectral.norm(w)
       i <- i+1
@@ -69,9 +74,10 @@ ica <- function(pc,xwhiten,numOfIC){
      }
     
     round <- round +1 
-     
+    print("Estimated another component...")
+    
   }
   
-   
+   return(S)
   
 }
