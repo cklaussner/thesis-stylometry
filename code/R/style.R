@@ -27,16 +27,17 @@ spDtm <- removeSparseTerms(dtm, 0.4) # 2nd argument indication of sparsity in ma
 #############   centering  ############
 
 dtmCent <- rmvMean(spDtm)
-#newVectors <- dtmCent[1] # get new centered vectors
-#mixedmean <- dtmCent[2] # get mean deducted for later
+mixedMean <- getFeatureMean()
 
 ############ whitening ############## 
 
 pc <- svdMat(dtmCent)  # calculate new components with svd 
 xwhiten <- getwhiteningMatrix()
-#pc <-pcamat(dtmCent)
+
+#pc <-pcamat(dtmCent) # also works, but svd gives better approx.
 ############# ica ###################
 
 
-#ic <- ica(pc,xwhiten, noOfIC)
+ics <- ica(pc,xwhiten, 10)
+#dataNew <- calcIC(spDtm,ics,mixedmean)
 

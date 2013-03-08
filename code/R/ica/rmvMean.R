@@ -7,11 +7,16 @@ rmvMean <- function(dtm){
   
   dtmMat <- as.matrix(dtm) 
   
-  featureMeans <- colMeans(dtmMat)    # calculate mean value for each feature 
+  featureMeans <<- colMeans(dtmMat)    # calculate mean value for each feature 
   newVectors <- t(apply(dtmMat, 1, "-", c(featureMeans))) # center data by subtracting mean of each feature for each document
   
-  #comb <- list(newVectors,featureMeans)
+  
   
   
   return(newVectors) # returns doc-term matrix centered
+}
+
+
+getFeatureMean <- function() {
+  return(featureMeans)
 }

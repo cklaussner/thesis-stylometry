@@ -33,13 +33,7 @@ svdMat <- function(nV){ # should be in format doc-term
   #print("diagonal elements...")
   #print(dg)
   ----------
- # wordMatrix = as.data.frame( t(as.matrix(A ))) 
-  
-  #write.csv(wordMatrix, file="matrix1.csv",quote=F, na='NA')
-  
-  #wMatrix = as.data.frame( t(as.matrix(whitenM ))) 
-  
-  #write.csv(wMatrix, file="wmatrix.csv",quote=F, na='NA')
+
   
   return(A) # return new data representation
   
