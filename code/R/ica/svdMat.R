@@ -6,9 +6,11 @@
 ## take mean-normalized vectors and perform svd - more stable way to do decorrelation than eigenvalue decomposition
 
 
-svdMat <- function(nV){ # should be in format doc-term
+svdMat <- function(nV){ # comes in format doc-term - needs to be transposed for svd
   
   print("svd-ing...")
+  
+  nV <-t(nV)
   
   Vm <- t(nV)%*%nV    # calculate right singular vectors V = A^T *A 
   

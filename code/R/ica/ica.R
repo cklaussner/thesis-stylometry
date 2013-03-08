@@ -4,13 +4,13 @@ library(matrixcalc)
 
 ica <- function(pc,xwhiten,numOfIC){
   
-  # normally pc should be term-doc matrix --TODO maybe put in a check
+  # normally pc should be doc-term matrix --TODO maybe put in a check
   
   
   #checking sizes
   #######################################
   msize <- dim(pc)
-  featureSize <- msize[1] 
+  vectorSize <- msize[1] 
   numSamples <- msize[2] 
   
  
@@ -18,9 +18,9 @@ ica <- function(pc,xwhiten,numOfIC){
   # setting some parameters
   epsilon <- 0.0001 # defining max.difference between new and old weight vector w 
   a1 <- 1    # sth. for nonlinearity calculation
-  B <- matrix(0,nrow = featureSize,ncol=featureSize) # create matrix for saving ICs
+  B <- matrix(0,nrow =vectorSize ,ncol=vectorSize) # create matrix for saving ICs
   
-  W <- matrix(0,nrow = 4,ncol=500)
+  
   round = 1 # - will have as many rounds as one needs components
   maxNumIteration <- 1000
   
@@ -29,7 +29,7 @@ ica <- function(pc,xwhiten,numOfIC){
   while (round <= numOfIC){   # keep estimating until desired no. of comp.
     
     
-    w <- as.matrix(rnorm(featureSize))  # intitialise vector randomly to snd values
+    w <- as.matrix(rnorm(vectorSize))  # intitialise vector randomly to snd values
     
     w <- w - B%*%t(B)%*%w              # orthogonalize w.r.t. all other vectors 
     w <- w/spectral.norm(w)          #--
@@ -42,7 +42,7 @@ ica <- function(pc,xwhiten,numOfIC){
     
     i <- 1
     
-    while (i <= maxNumIteration){   # define max no. of dttempts to find component
+    while (i <= maxNumIteration){   # define max no. of attempts to find component
       
       
       
@@ -57,7 +57,7 @@ ica <- function(pc,xwhiten,numOfIC){
         # put here code for A mixing matrix if want to retrieve as well
         
         
-        W[round,] <- t(w)%*%xwhiten # calculate ICA filter???
+        W[round,] <<- t(w)%*%xwhiten # calculate ICA filter???
    
     
            break # ICA ready - do next one...
@@ -73,7 +73,7 @@ ica <- function(pc,xwhiten,numOfIC){
       
       gp <- 1-hypTan^2
       
-      w <- (pc%*%hypTan - a1*sum(gp)*w)/numSamples    # rmv transpose before sum, since its normally ony 1x1 - probably no diff.
+      w <- (pc%*%hypTan - a1*sum(gp)*w)/vectorSize   # rmv transpose before sum, since its normally ony 1x1 - probably no diff.
       
       w <- w/spectral.norm(w)
       i <- i+1
