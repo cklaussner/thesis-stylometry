@@ -10,21 +10,30 @@ svdMat <- function(nV){ # comes in format doc-term - needs to be transposed for 
   
   print("svd-ing...")
   
+  msize <- dim(nV)
+  vectorSize <- msize[1] 
+  numSamples <- msize[2] 
+  
   nV <-t(nV)
   
   Vm <- t(nV)%*%nV    # calculate right singular vectors V = A^T *A 
   
-  eigV <- eigen(Vm)  # calculate eigen components
+  eigV <- eigen(t(Vm))  # calculate eigen components
   
+  E<- eigV$vec  # get eigenvectors
   
-  V <- eigV$vec  # get eigenvectors
+  S <- eigV$val  # get eigenvalues
+  S_sqrt <- sqrt(S)
   
-  #orthV <- orthonormalization(V,basis = TRUE,norm = TRUE) # Gram-Schmidt Orthnormalization
+  xS <- matrix(0,nrow =vectorSize, ncol=vectorSize)
+  diag(xS) <- S_sqrt
   
-  #V <- orthV
-  whitenM <<- t(V)  # whitening matrix
+  D <- solve(xS)
+  whitenM <- D%*%E
   
-  A <- t(V)%*%t(nV)  # take transpose - we want V not V^T multiplied by term-doc matrix
+  # whitening matrix
+  
+  A <- whitenM%*%t(nV)  # take transpose - we want V not V^T multiplied by doc-term matrix
   
   -------- # lose check to make sure the values off diagonal are 'small' enough
   #c <- cov(t(A))

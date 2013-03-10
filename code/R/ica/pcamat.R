@@ -5,27 +5,30 @@
 pcamat <- function(vectors){
   
   print("pca-ing...")
-    wordMat <- as.data.frame(vectors) 
+    wordMat <- as.matrix(vectors) 
   
-    covMat <- cov(wordMat)  # create covariance matrix
-    
+    covMat <- cov(t(wordMat))  # create covariance matrix
     eigens <- eigen(covMat)   # Eigendecomposition
     
-    
     evecs <- eigens$vectors  # extract eigenvectors
-    
-    pc <- t(evecs)%*%t(wordMat)   # project new direction onto data 
+    eval <- eigens$val
   
     
-    c <- cov(t(pc))
-    d <- c > 0.00005
-    print("values over 0.00005...")
-    print(d)
-    dg <- diag(d)
-    print("diagonal elements...")
-    print(dg)
-    
-    
-    return(pc)
   
+    xS <- matrix(0,nrow =4, ncol=4)
+    diag(xS) <- eval
+    
+    d <- solve(sqrt(xS))
+    
+    xwhiten <- as.matrix(d%*%t(evecs))
+                  
+    pc <- xwhiten%*%wordMat   # project new direction onto data 
+  
+    
+   return(pc)
+  
+}
+
+getwhiteningMatrix <- function() {
+  return(whitenM)
 }
