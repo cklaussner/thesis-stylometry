@@ -7,6 +7,7 @@ source("ica/rmvMean.R")
 source("ica/svdMat.R")
 source("ica/pcamat.R")
 source("ica/ica.R")
+source("ica/calcIC.R")
 ####"/home/carmen/Dropbox/Thesis/Data/text/SpecializedSet/"
 
 
@@ -38,6 +39,6 @@ xwhiten <- getwhiteningMatrix()
 ############# ica ###################
 
 
-ics <- ica(pc,xwhiten, 10)
-#dataNew <- calcIC(spDtm,ics,mixedmean)
+ics <- ica(pc,xwhiten, 4)
+icasig <- calcIC(spDtm,ics,mixedMean)
 

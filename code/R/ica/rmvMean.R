@@ -1,20 +1,19 @@
 
 
-###### center data for ICA - returns centered doc-term matrix
+###### center data for ICA - returns what is put in :P - put in term-doc matrix; takes rowMeans, so for each feature
 
 rmvMean <- function(dtm){
   print("centering data...")
   
   dtmMat <- as.matrix(dtm) 
   
-  signalMean <<- rowMeans(dtmMat)    # 
-  newVectors <- apply(dtmMat, 2, "-", c(signalMean)) # 
-  
-  
-  return(newVectors) # returns doc-term matrix centered
+  featureMean <<- rowMeans(dtmMat)    # calculate mean for each feature - word
+  newVectors <- apply(dtmMat, 2, "-", c(featureMean)) # subtract respective row mean from each column
+ 
+return(newVectors) # returns term-doc matrix centered
 }
 
 
-getSignalMean <- function() {
-  return(signalMean)
+getFeatureMean <- function() {
+  return(featureMean)
 }
