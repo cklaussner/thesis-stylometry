@@ -43,8 +43,8 @@ spDtm <- removeSparseTerms(dtm, 0.4) # 2nd argument indication of sparsity in ma
 #icasig <- calcIC(spDtm,ics,mixedMean)
 
 numOfIC <- 85   # set no. of comp
-keyThres <- 0.03
-compThres <- 1.0
+keyThres <- 0.1
+compThres <- 2.0
 
 
 Y<- fastICA(nV, numOfIC, alg.typ = "deflation",
@@ -66,7 +66,7 @@ numOfComps <- Ssize[2]
 compT <- abs(A) # get absolute vals since ica model is ambiguous in regard to sign 
 docs <- abs(S)
 
-colnames(docs) <- paste(1:noOfIC)   # name components
+colnames(docs) <- paste(1:numOfIC)   # name components
 docnames <- rownames(docs)
 
 colnames(compT) <- colnames(nV[2:length(nV)])  # get term names
@@ -123,7 +123,7 @@ for (i in 1:numOfDocs){   # get keywords for each document
   docKeys <- list()
   complist <- as.list(docLst[i]) # get component list for each doc
   
-  csize <- length(complist[[i]]) # get no of comp for doc
+  csize <- length(complist[[1]]) # get no of comp for doc
 
   cmplist <- list()
   for (j in 1:csize){ # for all comp for doc
@@ -139,27 +139,75 @@ for (i in 1:numOfDocs){   # get keywords for each document
       compkeys[[l]] <- keyplusweight[[1]][[l]][[1]] # extract all keys for curr comp
       }
     
-    docKeys[[j]] <-compkeys 
+    docKeys <-c(docKeys,compkeys)
     
     }
   docTopics[[docnames[i]]] <- docKeys
   
   }
 
-
-write.csv(docTopics,"docTopics.csv")
-
-#d <- compLst[[1]]
-#> d[[1]]
-#[,1]    [,2]               
-#[1,] "mercy" "0.484248975027599"
-#> d[[1]][1]
-#[1] "mercy"
-
+docTopics_short <- list()
+for (z in 1:numOfDocs){
   
+  d <- docTopics[[z]]
+  docTopics_short[[z]] <-  d[1:100]
+  
+}
 
 
-#(sort(col_sums((dtm)),decreasing = TRUE)) 
+same <- c(0)
+diff <- c(0)
+count <- (numOfDocs-1)
+for (zt in 1:count){
+  
+  u <- docTopics[zt]
+      
+  for (ztt in zt+1:(count-zt))
+    
+    v <- docTopics[ztt]
+  
+    
+    if (zt >= 56){
+      int <- intersect(v[[1]],u[[1])
+      
+     # l <- c(docnames[zt],docnames[ztt])
+      append(same,length(int[[1]]))
+      
+      }else{
+        
+        if (ztt<56){
+          
+          int <- intersect(v[[1]],u[[1])
+          
+          #l <- c(docnames[zt],docnames[ztt])
+          append(same,length(int[[1]]))
+        }else{
+          int <- intersect(v[[1]],u[[1])
+          #l <- c(docnames[zt],docnames[ztt])
+          append(diff,length(int[[1]]))
+          
+        }
+        
+      }
+    }
+
+
+
+
+
+#--------------output file
+
+sink("outfile.txt")
+for(s in 1:numOfDocs){
+  
+  d <- unique(docTopics_short[[s]])
+  ds <- paste(d,collapse= ' , ')
+  cat("\n")
+  cat(docnames[s])
+  cat("\n")
+  cat(ds)
+}
+sink()
 
 
 
