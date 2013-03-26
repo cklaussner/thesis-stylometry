@@ -40,6 +40,12 @@ for (i in 1:numOfDocs){   # get keywords for each document
       }
     
  }
-  docTopics[[docnames[i]]] <- as.list(sort(data.frame(keylist),decreasing =TRUE))
+  docTopics[[docnames[i]]] <- keylist
   
 }
+
+
+
+
+
+
