@@ -45,6 +45,19 @@ for (i in 1:numOfDocs){   # get keywords for each document
 }
 
 
+#--------------write to output file
+
+sink("outfile.txt")
+for(s in 1:numOfDocs){
+  
+  d <- docTopics_short[[s]]
+  ds <- paste(names(d),collapse=", ")
+  cat("\n")
+  cat(docnames[s])
+  cat("\n")
+  cat(ds)
+}
+sink()
 
 
 

@@ -146,6 +146,9 @@ for (i in 1:numOfDocs){   # get keywords for each document
   
   }
 
+
+
+#-------------------# keep only first...keywords
 docTopics_short <- list()
 for (z in 1:numOfDocs){
   
@@ -153,49 +156,78 @@ for (z in 1:numOfDocs){
   docTopics_short[[z]] <-  d[1:100]
   
 }
+#--------------------------------------
 
+# ----------check intersection of different sets, maybe make as function with set length as args
 
-same <- c(0)
-diff <- c(0)
-count <- (numOfDocs-1)
-for (zt in 1:count){
+Dset <- docTopics[1:55]
+Cset <- docTopics[56:86]
+
+DsetL <- length(Dset)
+CsetL <- length(Cset)
+
+# iterate over each set:
+
+#----Dickens
+terms_intsctD <- names(Dset[[1]])
+
+for (i in 2:DsetL){
   
-  u <- docTopics[zt]
-      
-  for (ztt in zt+1:(count-zt))
-    
-    v <- docTopics[ztt]
+  new_set <- names(Dset[[i]])
+  terms_intsctD <- intersect(terms_intsctD,new_set)
+}
+
+# ----Collins
+terms_intsctC <- names(Cset[[1]])
+
+for (i in 2:CsetL){
   
-    
-    if (zt >= 56){
-      int <- intersect(v[[1]],u[[1])
-      
-     # l <- c(docnames[zt],docnames[ztt])
-      append(same,length(int[[1]]))
-      
-      }else{
-        
-        if (ztt<56){
-          
-          int <- intersect(v[[1]],u[[1])
-          
-          #l <- c(docnames[zt],docnames[ztt])
-          append(same,length(int[[1]]))
-        }else{
-          int <- intersect(v[[1]],u[[1])
-          #l <- c(docnames[zt],docnames[ztt])
-          append(diff,length(int[[1]]))
-          
-        }
-        
-      }
-    }
+  new_set <- names(Cset[[i]])
+  terms_intsctC <- intersect(terms_intsctC,new_set)
+}
+
+# -------- mixed take half of each set
+
+newDsetL <- as.integer(DsetL/2)
+newCsetL <- as.integer(CsetL/2)
+
+
+DsetRed <- Dset [1:newDsetL]
+CsetRed <- Cset[1:newDsetL]
+
+
+compSet <- c(DsetRed,CsetRed)
+CompsetL <- length(compSet)
+terms_intsctM <- names(compSet[[1]])
+
+for (i in 2:CompsetL){
+  
+  new_set <- names(compSet[[i]])
+  terms_intsctM <- intersect(terms_intsctM,new_set)
+}
+
+
+#------------------------------intersection check
+
+
+
+# ----------------------- get overall word frequencies 
 
 
 
 
 
-#--------------output file
+
+
+
+
+
+
+
+
+
+
+#--------------write to output file
 
 sink("outfile.txt")
 for(s in 1:numOfDocs){
