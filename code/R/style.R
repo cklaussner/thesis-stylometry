@@ -207,20 +207,84 @@ for (i in 2:CompsetL){
 }
 
 
+#alternative version
+d.terms <- all.terms
+for (d in names(terms)) { 
+  if (substr(d,1,1) == "D") { # take only documents whose first letter is 'd'
+    d.terms <- intersect(d.terms, terms[[d]])
+    print(d.terms)
+  }
+}
+
 #------------------------------intersection check
 
 
 
 # ----------------------- get overall word frequencies 
+maxTerms <- 20 # to be set according to max number of desired keywords
+docLength <- length(docTopics) # no. of Docs
+terms <- list() # list initialisation
+for (i in 1:docLength){
+  terms[[names(docTopics[i])]]<- names(docTopics[[i]])  # collect all terms for each doc
+}
+
+all.terms <- c()
+for (d in names(terms)) { all.terms <- union(all.terms, terms[[d]])}   # take union of all terms in set
+
+#d.terms <- all.terms
+#for (d in names(terms)) { 
+ # print(substr(d,1,1))
+  #if (substr(d,1,1) == "D") { # take only documents whose first letter is 'D'
+  #  d.terms <- c(d.terms,intersect(d.terms, terms[[d]]))
+  #}}
+
+terms.count <- as.matrix(rep(0, length(all.terms)))
+terms.countS <- as.matrix(rep(0, length(all.terms)))
+rownames(terms.count) <- all.terms
+rownames(terms.countS) <- all.terms
+for (d in names(terms)) {
+  if (substr(d,1,1) == "D"){
+  d.count <- as.matrix(xtabs(~terms[[d]]))
+  terms.count[rownames(d.count),] <- terms.count[rownames(d.count),] + d.count[,1]
+  print(d.count[1,1])
+}else{ if(substr(d,1,1) == "W"){
+  dS.count <- as.matrix(xtabs(~terms[[d]]))
+  terms.countS[rownames(dS.count),] <- terms.countS[rownames(dS.count),] + dS.count[,1]
+  
+  
+}
+  }}
+
+terms.order <- terms.count[order(terms.count[,1],decreasing = TRUE ),]    # order doc sets according to freq.
+termsS.order  <- terms.countS[order(terms.countS[,1],decreasing = TRUE ),]
 
 
+finalKeysD <- as.matrix(terms.order)[1:maxTerms,1]
+finalKeysC <- as.matrix(terms.orderS)[1:maxTerms,1]
 
+#------------------ feature stability 
+terms.list <- list()
+terms.mean <- list()
+terms.std <- list()
+terms.doc <- list()
 
-
-
-
-
-
+for (i in length(docTopics)){
+  doc <- docTopics[[i]]
+  # put in check for docs of right set
+  for (term in names(doc)){
+    
+    if (is.null(terms.list[[term]])){
+      terms.list[[term]] <- doc[[term]]  # put in first weight for term
+      terms.doc[[term]] <-  1
+    }else{
+     terms.list[[term]] <- terms.list[[term]] + doc[[term]]
+     terms.doc[[term]] <-  terms.doc[[term]] + 1
+     print(terms.doc[[term]])
+      
+    } 
+  }
+}
+     
 
 
 
