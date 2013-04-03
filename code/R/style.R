@@ -298,10 +298,6 @@ for (key in names(terms.list)){
   terms.weight[[key]] <- sum(terms.list[[key]])*1/terms.std[[key]]
 }
 
-
-
-
-
 #--------------write to output file
 
 sink("outfile.txt")
