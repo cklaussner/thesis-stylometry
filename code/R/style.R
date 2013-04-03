@@ -266,26 +266,37 @@ finalKeysC <- as.matrix(terms.orderS)[1:maxTerms,1]
 terms.list <- list()
 terms.mean <- list()
 terms.std <- list()
-terms.doc <- list()
 
-for (i in length(docTopics)){
+
+for (i in 1:length(docTopics)){
   doc <- docTopics[[i]]
   # put in check for docs of right set
   for (term in names(doc)){
     
+    
     if (is.null(terms.list[[term]])){
-      terms.list[[term]] <- doc[[term]]  # put in first weight for term
-      terms.doc[[term]] <-  1
+      terms.list[[term]] <- c(doc[[term]])  # put in first weight for term
     }else{
-     terms.list[[term]] <- terms.list[[term]] + doc[[term]]
-     terms.doc[[term]] <-  terms.doc[[term]] + 1
-     print(terms.doc[[term]])
+     terms.list[[term]] <- c(terms.list[[term]], doc[[term]])
+     
       
     } 
   }
 }
      
+for (key in names(terms.list)){
+  
+  terms.mean[[key]] <- mean(terms.list[[key]])
+  terms.std[[key]] <- sd(terms.list[[key]]) 
+}
+#------------Weighting of freq and stability
 
+terms.weight <- list()
+
+for (key in names(terms.list)){
+  
+  terms.weight[[key]] <- sum(terms.list[[key]])*1/terms.std[[key]]
+}
 
 
 
