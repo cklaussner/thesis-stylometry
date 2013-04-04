@@ -1,4 +1,4 @@
-
+library(fields)
 # Representative-Distinctiveness Feature Selection
 
 S <- abs(S)
@@ -14,8 +14,8 @@ Dsize <- dim(D.set)
 numOfD <- Dsize[1] 
 numOfComps <- Dsize[2] 
 
-Csize <- dim(C)
-numOfC <- Csize[1] 
+Csize <- dim(C.set)
+numOfCol <- Csize[1] 
 
 #--------normalize feature weight ????
 
@@ -23,6 +23,7 @@ numOfC <- Csize[1]
 #-------- Representativeness: compare features within D.set - want lowest distance overall
 
 rep.feature <- list()
+rep.values <- list()
 
 for (i in 1:numOfComps){
   sum.values <- c()
@@ -36,6 +37,7 @@ for (i in 1:numOfComps){
        
       }
   }
+  rep.values[[i]] <- sum.values
   
   rep.feature[i] <- 2/ (abs(numOfD)^2 - abs(numOfD))* sum(sum.values)
 }
@@ -43,6 +45,35 @@ for (i in 1:numOfComps){
 #------------Distinctiveness: compare Dickens and Collins set
 
 dist.feature <- list()
+dist.values <- list()
+for (i in 1:numOfComps){
+  sum.valuesDC <- c()
+  for (j in 1:numOfD){
+     d.1 <- log(D.set[j,i])
+     
+     for (jj in 1:numOfCol){
+        c.1 <- log(C.set[jj,i])
+    
+        dist.dc <- rdist(d.1,c.1) # change to whatever other way of comp. distance
+        sum.valuesDC <- c(sum.valuesDC,dist.dc)
+     }
+  }
+  dist.values[i] <- sum.valuesDC
+  dist.feature[i] <- (2/ ((abs(numOfD))* (abs(numOfCol) - abs(numOfD))))* sum(sum.valuesDC)
+
+}
+
+
+
+#------ Feature comparison
+
+feature.comp <- list()
+for (i in 1:numOfComps){
+  dist.all[i] <- c(dist.values[i],rep.values[i])
+  
+  feat.stan[i] <- ((dist.feature[i] - mean(dist.all[i]))/sd(dist.all[i])) - ((rep.feature[i]- mean(dist.all[i]))/sd(dist.all[i]))
+  
+}
 
 
 
