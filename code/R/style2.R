@@ -26,7 +26,7 @@ for (i in 1:numOfDocs){   # get keywords for each document
       
       compkey <- keyplusweight[[1]][[l]][[1]] # extract all keys for curr comp
       keyWeight <- as.double(keyplusweight[[1]][[l]][[2]]) # extract weight for key in comp
-      keyWeight <- keyWeight*compWeight # calc importance of key in doc 
+      keyWeight <- keyWeight*(2*compWeight) # calc importance of key in doc 
      
       if (is.null(keylist[[compkey]])){   # if key not there yet, add to list for doc + weight
         keylist[[compkey]] <- keyWeight   # assign weight to keyword
