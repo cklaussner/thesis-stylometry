@@ -26,6 +26,7 @@ rep.feature <- list()
 rep.values <- list()
 
 for (i in 1:numOfComps){
+  
   sum.values <- c()
   for (j in 1:(numOfD-1)){
     
@@ -58,7 +59,7 @@ for (i in 1:numOfComps){
         sum.valuesDC <- c(sum.valuesDC,dist.dc)
      }
   }
-  dist.values[i] <- sum.valuesDC
+  dist.values[[i]] <- sum.valuesDC
   dist.feature[i] <- (2/ ((abs(numOfD))* (abs(numOfCol) - abs(numOfD))))* sum(sum.valuesDC)
 
 }
@@ -66,12 +67,12 @@ for (i in 1:numOfComps){
 
 
 #------ Feature comparison
-
+dist.all <- list()
 feature.comp <- list()
 for (i in 1:numOfComps){
-  dist.all[i] <- c(dist.values[i],rep.values[i])
+  dist.all[[i]] <- c(dist.values[[i]],rep.values[i])
   
-  feat.stan[i] <- ((dist.feature[i] - mean(dist.all[i]))/sd(dist.all[i])) - ((rep.feature[i]- mean(dist.all[i]))/sd(dist.all[i]))
+  feat.comp[i] <- ((dist.feature[i] - mean(dist.all[i]))/sd(dist.all[i])) - ((rep.feature[i]- mean(dist.all[i]))/sd(dist.all[i]))
   
 }
 
