@@ -1,14 +1,11 @@
-library(fields)
 # Representative-Distinctiveness Feature Selection
 
+repDisComp <-function(S,noOfD,noOfC){   # imput is doc-comp matrix S, num of Dickens doc and Collins,, assuming D. comes first
+
 S <- abs(S)
-#Ssize <- dim(S)
-#numOfDocs <- Ssize[1] 
-#numOfComps <- Ssize[2] 
 
-
-D.set <- S[1:55, ]
-C.set <- S[55:86, ]
+D.set <- S[1:noOfD, ]
+C.set <- S[(noOfD+1):(noOfD+noOfC), ]
 
 Dsize <- dim(D.set)
 numOfD <- Dsize[1] 
@@ -30,10 +27,10 @@ for (i in 1:numOfComps){
   sum.values <- c()
   for (j in 1:(numOfD-1)){
     
-    d.1 <- log(D.set[j,i])    # change log ?
+    d.1 <- log(D.set[[j,i]])    
      for (jj in j+1:(numOfD-j)){
-       d.2 <- log(D.set[jj,i])
-       dist.dd <- rdist(d.1,d.2) # change to whatever other way of comp. distance
+       d.2 <- log(D.set[[jj,i]])
+       dist.dd <- abs(d.1-d.2)
        sum.values <- c(sum.values,dist.dd)
        
       }
@@ -50,12 +47,12 @@ dist.values <- list()
 for (i in 1:numOfComps){
   sum.valuesDC <- c()
   for (j in 1:numOfD){
-     d.1 <- log(D.set[j,i])
+     d.1 <- log(D.set[[j,i]])
      
      for (jj in 1:numOfCol){
-        c.1 <- log(C.set[jj,i])
+        c.1 <- log(C.set[[jj,i]])
     
-        dist.dc <- rdist(d.1,c.1) # change to whatever other way of comp. distance
+        dist.dc <- abs(d.1 -c.1)
         sum.valuesDC <- c(sum.valuesDC,dist.dc)
      }
   }
@@ -67,15 +64,30 @@ for (i in 1:numOfComps){
 
 
 #------ Feature comparison
+
 dist.all <- list()
-feature.comp <- list()
+feature.comp <- matrix(0,nrow=numOfComps,ncol=1)
 for (i in 1:numOfComps){
-  dist.all[[i]] <- c(dist.values[[i]],rep.values[i])
+  dist.all[[i]] <- c(dist.values[[i]],rep.values[[i]])
   
-  feat.comp[i] <- ((dist.feature[i] - mean(dist.all[i]))/sd(dist.all[i])) - ((rep.feature[i]- mean(dist.all[i]))/sd(dist.all[i]))
+  feature.comp[i,] <- abs((dist.feature[[i]] - mean(dist.all[[i]]))/sd(dist.all[[i]])) - ((rep.feature[[i]]- mean(dist.all[[i]]))/sd(dist.all[[i]]))
   
 }
 
+#------select highest no. of terms:  at the moment: everything above mean for set 
+
+ mean.comp <- mean(feature.comp)
+ comp.red <- c()
+ for (i in 1:numOfComps){
+   if(feature.comp[i] > mean.comp){
+     comp.red <- c(comp.red,i)
+   }
+ }
+
+
+return(comp.red)
+ 
+}
 
 
 
