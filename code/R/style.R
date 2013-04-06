@@ -42,8 +42,8 @@ spDtm <- removeSparseTerms(dtm, 0.4) # 2nd argument indication of sparsity in ma
 #ics <- ica(pc,xwhiten, 4)
 #icasig <- calcIC(spDtm,ics,mixedMean)
 
-numOfIC <- 85   # set no. of comp
-keyThres <- 0.1
+numOfIC <- 48   # set no. of comp
+keyThres <- 0.5
 compThres <- 2.0
 
 
@@ -56,7 +56,7 @@ S <- Y$S # extract doc-by-comp
 A <- (Y$A) # get inverse of unmixing matrix W --> weights for terms of each comp.
 
 Asize <- dim(A)
-numOfComps <- Asize[1] 
+numOfIC <- Asize[1] 
 numOfTerms <- Asize[2] 
 
 Ssize <- dim(S)
@@ -67,9 +67,9 @@ compT <- abs(A) # get absolute vals since ica model is ambiguous in regard to si
 docs <- abs(S)
 
 colnames(docs) <- paste(1:numOfIC)   # name components
-docnames <- rownames(docs)
+docnames <- rownames(nV)
 
-colnames(compT) <- colnames(nV[2:length(nV)])  # get term names
+colnames(compT) <- colnames(nV)  # get term names
 compLst <- list()
 
 #-------------------------create list where for each comp - list of keyword-weight pair 
@@ -127,9 +127,9 @@ for (i in 1:numOfDocs){   # get keywords for each document
 
   cmplist <- list()
   for (j in 1:csize){ # for all comp for doc
-    
+    print(j)
     cmp <- as.integer(complist[[1]][[j]][[1]])  # extract comp no. so we can get keywords - complist[[1]][[j]][[2]] gets weight
-    
+    print(i)
     keyplusweight <-as.list(compLst[cmp]) # get keywords for comp.
     
     keysize <- length(keyplusweight[[1]]) # get no. of terms

@@ -1,4 +1,64 @@
 
+# -----extract comp. keywords, write to file
+compKeys <- list()
+
+for (i in 1:length(compLst)){
+  cv <- c()
+  if(length(compLst[[i]])!= 0){
+  cmp <- compLst[[i]]
+  
+  for(j in 1:length(cmp)){
+   cv <- c(cv,cmp[[j]][[1]][[1]])
+   }}
+compKeys[[i]] <- cv
+}
+
+docComps <- list()
+
+for (i in 1:length(docLst)){
+  cd <- c()
+  if(length(docLst[[i]])!= 0){
+    doc <- docLst[[i]]
+    
+    for(j in 1:length(doc)){
+      cd <- c(cd,doc[[j]][[1]][[1]])
+    }}
+  docComps[[i]] <- cd
+}
+
+
+
+sink("compKeys.txt")
+for(s in 1:length(compLst)){
+  
+  d <- compKeys[[s]]
+  ds <- paste(d,collapse=", ")
+  cat("\n")
+  cat(s)
+  cat("\n")
+  cat(ds)
+}
+for(s in 1:length(docLst)){
+  
+  d <- docComps[[s]]
+  ds <- paste(d,collapse=", ")
+  cat("\n")
+  cat(names(docLst)[s])
+  cat("\n")
+  cat(ds)
+}
+
+
+
+
+sink()
+
+
+
+
+
+
+
 
 #----get keywords for each doc 2nd VERSION!!!
 

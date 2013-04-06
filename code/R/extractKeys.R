@@ -1,33 +1,30 @@
 
-
 extractKeys <- function(nV,S, A, keyThres, compThres){ ###TODO change nV naming
   
-Asize <- dim(A)
-numOfComps <- Asize[1] 
-numOfTerms <- Asize[2] 
+  Asize <- dim(A)
+  numOfComps <- Asize[1] 
+  numOfTerms <- Asize[2] 
 
-Ssize <- dim(S)
-numOfDocs <- Ssize[1] 
-numOfComps <- Ssize[2] 
+  Ssize <- dim(S)
+  numOfDocs <- Ssize[1] 
+  numOfComps <- Ssize[2] 
 
-compT <- abs(A) # get absolute vals since ica model is ambiguous in regard to sign 
-docs <- abs(S)
+  compT <- abs(A) # get absolute vals since ica model is ambiguous in regard to sign 
+  docs <- abs(S)
 
-colnames(docs) <- paste(1:numOfIC)   # name components
-docnames <- rownames(docs)
+  colnames(docs) <- paste(1:numOfComps)   # name components
+  docnames <- rownames(nV)
 
-colnames(compT) <- colnames(nV[2:length(nV)])  # get term names
-compLst <- list()
-  
+  colnames(compT) <- colnames(nV)  # get term names
+  compLst <- list()
   
 #-------------------------create list where for each comp - list of keyword-weight pair 
   
   for(i in 1:numOfComps) {   # sort keywords in components according to weight
     key <- sort(compT[i, ],decreasing = TRUE) # sort comp. according to most prominent keywords
-    label <- names(key) # get term names
+    label <- names(key)  # get term names
     names(key) <- NULL # rmv term names
     lst <- list()
-    
     for (j in 1:numOfTerms){ # for comp create list key - weight for easy access 
       if(key[j] < keyThres){
         break
@@ -39,25 +36,23 @@ compLst <- list()
     compLst[[i]] <-  as.list(lst)     # add to overall comp list
     
   }
-
-
 #---------------------------# same for components for each doc - order according to weight - pos in list = pos in doc
 
-docLst <- list()
-for (i in 1:numOfDocs){   # order comp for each document
+ docLst <- list()
+ for (i in 1:numOfDocs){   # order comp for each document
   
-  c_ord <- sort(docs[i, ],decreasing = TRUE)  # sort accord. to weight
+    c_ord <- sort(docs[i, ],decreasing = TRUE)  # sort accord. to weight
   
-  label <- names(c_ord) # get comp names
-  names(c_ord) <- NULL # rmv comp names
-  lst <- list()
+    label <- names(c_ord) # get comp names
+    names(c_ord) <- NULL # rmv comp names
+    lst <- list()
   
-  for (j in 1:numOfIC){ 
+    for (j in 1:numOfComps){ 
     
-    if(c_ord[j] < compThres){
-      break
+      if(c_ord[j] < compThres){
+        break
     }
-    lst[[j]] <- cbind(label[j],c_ord[j])
+      lst[[j]] <- cbind(label[j],c_ord[j])
   }
   
   docLst[[docnames[i]]] <-  as.list(lst)    # add to overall comp list
@@ -66,9 +61,11 @@ for (i in 1:numOfDocs){   # order comp for each document
 #----get keywords for each doc 2nd VERSION!!!
 
 docTopics <- list()
+  
 
 for (i in 1:numOfDocs){   # get keywords for each document
   docKeys <- list()
+  
   
   complist <- as.list(docLst[i]) # get component list for each doc
   
@@ -78,12 +75,15 @@ for (i in 1:numOfDocs){   # get keywords for each document
   keylist <- list() # list for keywords 
   for (j in 1:csize){ # for all comp for doc
     
+    
     cmp <- as.integer(complist[[1]][[j]][[1]])  # extract comp no. so we can get keywords and weights 
+    
     compWeight <- as.double(complist[[1]][[j]][[2]]) # extract weight for comp in doc
     
-    keyplusweight <-as.list(compLst[cmp]) # get keywords for comp.
+    keyplusweight <- as.list(compLst[cmp]) # get keywords for comp.
     
     keysize <- length(keyplusweight[[1]]) # get no. of terms
+  
     compkeys <- list()
     for (l in 1:keysize){
       
@@ -147,7 +147,7 @@ for (d in names(terms)) {
   if (substr(d,1,1) == "D"){
     d.count <- as.matrix(xtabs(~terms[[d]]))
     terms.count[rownames(d.count),] <- terms.count[rownames(d.count),] + d.count[,1]
-    print(d.count[1,1])
+    
   }else{ if(substr(d,1,1) == "W"){
     dS.count <- as.matrix(xtabs(~terms[[d]]))
     terms.countS[rownames(dS.count),] <- terms.countS[rownames(dS.count),] + dS.count[,1]
@@ -159,6 +159,7 @@ for (d in names(terms)) {
 terms.order <- terms.count[order(terms.count[,1],decreasing = TRUE ),]    # order doc sets according to freq.
 termsS.order  <- terms.countS[order(terms.countS[,1],decreasing = TRUE ),]
 
+print(termsS.order)
 
 finalKeysD <- as.matrix(terms.order)[1:maxTerms,1]
 finalKeysC <- as.matrix(termsS.order)[1:maxTerms,1]
@@ -166,7 +167,9 @@ finalKeysC <- as.matrix(termsS.order)[1:maxTerms,1]
 sink("KeyCol.txt")
   
 labelsD <- names(finalKeysD)
+
 labelsC <- names(finalKeysC)
+
   cat("\n")
   cat("Dickens'Keywords")
   cat("\n")

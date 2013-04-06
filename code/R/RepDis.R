@@ -1,6 +1,6 @@
 # Representative-Distinctiveness Feature Selection
 
-repDisComp <-function(S,noOfD,noOfC){   # imput is doc-comp matrix S, num of Dickens doc and Collins,, assuming D. comes first
+repDisComp <- function(S,noOfD,noOfC){   # imput is doc-comp matrix S, num of Dickens doc and Collins, assuming D. comes first
 
 S <- abs(S)
 
