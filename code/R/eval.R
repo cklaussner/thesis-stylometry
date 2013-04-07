@@ -178,36 +178,76 @@ finalKeysC <- as.matrix(termsS.order)[1:maxTerms,1]
 
 #-----eval. for current keyword list + "missing" doc. 
 
-termsize.D <- sum(finalKeysD)
-termsize.C <- sum(finalKeysC)
+#--------------------Test agains Dickens' keywords
+
 
 #--- Dickens.set
-term.weightD <- list()
+termsize.D <- sum(finalKeysD)
+hist.D <-as.matrix(rep(0, length(finalKeysD)))
+rownames(hist.D) <- names(finalKeysD)
 for (n in names(finalKeysD)){
-  term.weightD[[n]] <- finalKeysD[[n]]/termsize.D
-  
-}
-
-#--- Collins.set
-term.weightC <- list()
-for (n in names(finalKeysC)){
-  term.weightC[[n]] <- finalKeysC[[n]]/termsize.C
+  hist.D[n,] <- finalKeysD[[n]]/termsize.D
   
 }
 
 ### extract Dickens keywords from test set vector
-test.vec <- list()
-for (c in 1:length(finalKeysC)){
+test.vec <- as.matrix(rep(0, length(finalKeysD)))
+rownames(test.vec) <- names(finalKeysD)
+for (term in names(finalKeysD)){
 
-  test.set 
+  test.vec[term,] <- test.set[[term]] 
+}
+termsize.T <- sum(test.vec)
 
-
+hist.test <- as.matrix(rep(0, length(finalKeysD)))
+rownames(hist.test) <- names(finalKeysD)
+for (n in rownames(test.vec)){
+  hist.test[n,] <- test.vec[n,]/termsize.T
 }
 
+#---compare loop
+abs.diff <- c()
+for (c in rownames(hist.D)){
+  val <- abs(hist.D[c,] - hist.test[c,])
+  
+  abs.diff <- union(abs.diff,val)
+}
+abs.diff <- sum(abs.diff)
 
 
+#--------------------Test agains Collins' keywords
 
+#--- Collins.set
+termsize.C <- sum(finalKeysC)
+hist.C <- as.matrix(rep(0, length(finalKeysC)))
+rownames(hist.C) <- names(finalKeysC)
+for (n in names(finalKeysC)){
+  histC[n,] <- finalKeysC[[n]]/termsize.C
+  
+}
 
+### extract Collins keywords from test set vector
+test.vec2 <- as.matrix(rep(0, length(finalKeysC)))
+rownames(test.vec2) <- names(finalKeysC)
+for (term in names(finalKeysC)){
+  
+  test.vec2[term,] <- test.set[[term]] 
+}
+termsize.T2 <- sum(test.vec2)
 
+hist.test2 <- as.matrix(rep(0, length(finalKeysC)))
+rownames(hist.test2) <- names(finalKeysC)
+for (n in rownames(test.vec2)){
+  hist.test2[n,] <- test.vec2[n,]/termsize.T2
+}
+
+#---compare loop for Collins
+abs.diff2 <- c()
+for (c in rownames(hist.C)){
+  val2 <- abs(hist.C[c,] - hist.test2[c,])
+  
+  abs.diff2 <- union(abs.diff2,val2)
+}
+abs.diff2 <- sum(abs.diff2)
 
 
