@@ -8,13 +8,17 @@ keyThres <- 0.1
 compThres <- 2.0
 maxTerms <- 70 # to be set according to max number of desired keywords
 ---
-range.D <- 55
-range.C <- 31
+  
+Msize <- dim(nV)
+numOfDocs <- Msize[1] 
+numOfComps <- Msize[2] 
 #----------------------------
+D.diff <- list()
+C.diff <- list()
 
-# put loop for diff docs here
 
-i <- 1
+for (i in 1:numOfDocs){
+
 test.set <- nV[i,] # extract doc for test
 remove.doc <- rownames(nV)[i]
 train.set <- nV[!rownames(nV) %in% remove.doc, ] # create new matrix with document left out
@@ -222,7 +226,7 @@ termsize.C <- sum(finalKeysC)
 hist.C <- as.matrix(rep(0, length(finalKeysC)))
 rownames(hist.C) <- names(finalKeysC)
 for (n in names(finalKeysC)){
-  histC[n,] <- finalKeysC[[n]]/termsize.C
+  hist.C[n,] <- finalKeysC[[n]]/termsize.C
   
 }
 
@@ -251,3 +255,6 @@ for (c in rownames(hist.C)){
 abs.diff2 <- sum(abs.diff2)
 
 
+D.diff[[remove.doc]] <- abs.diff
+C.diff[[remove.doc]] <- abs.diff2
+}
