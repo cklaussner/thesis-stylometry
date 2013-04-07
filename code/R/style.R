@@ -42,8 +42,8 @@ spDtm <- removeSparseTerms(dtm, 0.4) # 2nd argument indication of sparsity in ma
 #ics <- ica(pc,xwhiten, 4)
 #icasig <- calcIC(spDtm,ics,mixedMean)
 
-numOfIC <- 48   # set no. of comp
-keyThres <- 0.5
+numOfIC <- 85  # set no. of comp
+keyThres <- 0.1
 compThres <- 2.0
 
 
@@ -91,6 +91,13 @@ for(i in 1:numOfIC) {   # sort keywords in components according to weight
  compLst[[i]] <-  as.list(lst)     # add to overall comp list
 
 }
+
+
+for (i in 1:length(compLst)){
+  if (length(compLst[[i]])==0){
+    print(i)
+    print("Warning - no keywords for comp")}}
+
 #---------------------------# same for components for each doc - order according to weight - pos in list = pos in doc
 
 docLst <- list()
@@ -112,6 +119,14 @@ for (i in 1:numOfDocs){   # order comp for each document
   
   docLst[[docnames[i]]] <-  as.list(lst)    # add to overall comp list
 }
+
+for (i in 1:length(docLst)){
+  
+  if (length(docLst[[i]])==0){
+    print(i)
+    print("Warning - no comp for doc")
+  }}
+
 
 
 #----------------------------------
@@ -221,7 +236,7 @@ for (d in names(terms)) {
 
 
 # ----------------------- get overall word frequencies 
-maxTerms <- 20 # to be set according to max number of desired keywords
+maxTerms <- 70 # to be set according to max number of desired keywords
 docLength <- length(docTopics) # no. of Docs
 terms <- list() # list initialisation
 for (i in 1:docLength){
@@ -246,7 +261,6 @@ for (d in names(terms)) {
   if (substr(d,1,1) == "D"){
   d.count <- as.matrix(xtabs(~terms[[d]]))
   terms.count[rownames(d.count),] <- terms.count[rownames(d.count),] + d.count[,1]
-  print(d.count[1,1])
 }else{ if(substr(d,1,1) == "W"){
   dS.count <- as.matrix(xtabs(~terms[[d]]))
   terms.countS[rownames(dS.count),] <- terms.countS[rownames(dS.count),] + dS.count[,1]
@@ -260,7 +274,7 @@ termsS.order  <- terms.countS[order(terms.countS[,1],decreasing = TRUE ),]
 
 
 finalKeysD <- as.matrix(terms.order)[1:maxTerms,1]
-finalKeysC <- as.matrix(terms.orderS)[1:maxTerms,1]
+finalKeysC <- as.matrix(termsS.order)[1:maxTerms,1]
 
 #------------------ feature stability 
 terms.list <- list()

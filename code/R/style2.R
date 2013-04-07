@@ -21,12 +21,42 @@ for (i in 1:length(docLst)){
     doc <- docLst[[i]]
     
     for(j in 1:length(doc)){
-      cd <- c(cd,doc[[j]][[1]][[1]])
+      cd <- c(cd,as.integer(doc[[j]][[1]][[1]]))
     }}
-  docComps[[i]] <- cd
+  n <- names(docLst)[i]
+  docComps[[n]] <- cd
 }
 
+docLength <- length(docComps) # no. of Docs
+comps <- list() # list initialisation
+for (i in 1:docLength){
+  comps[[names(docComps[i])]] <- docComps[[i]]  # collect all terms for each doc
+}
 
+all.comps <- c()
+for (d in names(comps)) { all.comps <- union(all.comps, comps[[d]])}   # take union of all terms in set
+
+comps.count <- as.matrix(rep(0, length(all.comps)))
+comps.countS <- as.matrix(rep(0, length(all.comps)))
+rownames(comps.count) <- all.comps
+rownames(comps.countS) <- all.comps
+for (d in names(comps)) {
+  if (substr(d,1,1) == "D"){
+    d.count <- as.matrix(xtabs(~comps[[d]]))
+    comps.count[rownames(d.count),] <- comps.count[rownames(d.count),] + d.count[,1]
+    
+  }else{ if(substr(d,1,1) == "W"){
+    dS.count <- as.matrix(xtabs(~comps[[d]]))
+    comps.countS[rownames(dS.count),] <- comps.countS[rownames(dS.count),] + dS.count[,1]
+}
+  }}
+
+comps.order <- as.matrix(comps.count[order(comps.count[,1],decreasing = TRUE ),])   
+rownames(comps.order) <- paste("C",rownames(comps.order))
+compsS.order  <- as.matrix(comps.countS[order(comps.countS[,1],decreasing = TRUE ),])
+rownames(compsS.order) <- paste("C",rownames(compsS.order))
+
+#----write to file
 
 sink("compKeys.txt")
 for(s in 1:length(compLst)){
@@ -37,7 +67,15 @@ for(s in 1:length(compLst)){
   cat(s)
   cat("\n")
   cat(ds)
+  
 }
+cat("\n")
+cat("Dickens")
+c(paste(rownames(comps.order),comps.order, collapse = ":"))
+cat("\n")
+cat("Collins")
+c(paste(rownames(compsS.order), compsS.order, collapse = ":"))
+cat("\n")
 for(s in 1:length(docLst)){
   
   d <- docComps[[s]]
@@ -57,8 +95,9 @@ sink()
 
 
 
+#for (i in 1:length(docLst)){print(length(docLst[[i]]))}
 
-
+#for (i in 1:length(compLst)){print(length(compLst[[i]]))}
 
 #----get keywords for each doc 2nd VERSION!!!
 
@@ -78,9 +117,11 @@ for (i in 1:numOfDocs){   # get keywords for each document
     cmp <- as.integer(complist[[1]][[j]][[1]])  # extract comp no. so we can get keywords and weights 
     compWeight <- as.double(complist[[1]][[j]][[2]]) # extract weight for comp in doc
     
+    
     keyplusweight <-as.list(compLst[cmp]) # get keywords for comp.
     
     keysize <- length(keyplusweight[[1]]) # get no. of terms
+    if (keysize!=0){
     compkeys <- list()
     for (l in 1:keysize){
       
@@ -97,7 +138,7 @@ for (i in 1:numOfDocs){   # get keywords for each document
           keylist[[compkey]] <- newWeight # assign new value
         }
       
-      }
+      }}
     
  }
   docTopics[[docnames[i]]] <- keylist
