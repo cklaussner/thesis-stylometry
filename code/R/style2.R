@@ -85,10 +85,6 @@ for(s in 1:length(docLst)){
   cat("\n")
   cat(ds)
 }
-
-
-
-
 sink()
 
 
@@ -141,9 +137,19 @@ for (i in 1:numOfDocs){   # get keywords for each document
       }}
     
  }
+  #keyMat <- as.matrix(rep(0, length(keylist)))
+  #rownames(keyMat) <- names(keylist)
+  #keyMat[, 1] <- sapply(keylist, function(x){as.numeric(x[[1]])})
+  
+  
   docTopics[[docnames[i]]] <- keylist
   
 }
+
+
+
+
+
 
 
 #--------------write to output file

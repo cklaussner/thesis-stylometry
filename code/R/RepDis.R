@@ -28,10 +28,15 @@ for (i in 1:numOfComps){
   for (j in 1:(numOfD-1)){
     
     d.1 <- log(D.set[[j,i]])    
+    if((D.set[[j,i]])==0) d.1 <- 0
+    
      for (jj in j+1:(numOfD-j)){
        d.2 <- log(D.set[[jj,i]])
+       if((D.set[[jj,i]])==0) d.2 <- 0
+       
        dist.dd <- abs(d.1-d.2)
        sum.values <- c(sum.values,dist.dd)
+       
        
       }
   }
@@ -48,11 +53,12 @@ for (i in 1:numOfComps){
   sum.valuesDC <- c()
   for (j in 1:numOfD){
      d.1 <- log(D.set[[j,i]])
-     
+     if((D.set[[j,i]])== 0) d.1 <- 0
      for (jj in 1:numOfCol){
         c.1 <- log(C.set[[jj,i]])
-    
+        if((C.set[[jj,i]])== 0) c.1 <- 0
         dist.dc <- abs(d.1 -c.1)
+        
         sum.valuesDC <- c(sum.valuesDC,dist.dc)
      }
   }

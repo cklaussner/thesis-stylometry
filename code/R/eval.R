@@ -2,12 +2,14 @@
 library(fastICA)
 
 
+evalICA <- function(nV){
+
 #parameters
 numOfIC <- 85  # set no. of comp
 keyThres <- 0.1
 compThres <- 2.0
-maxTerms <- 70 # to be set according to max number of desired keywords
----
+maxTerms <- 80 # to be set according to max number of desired keywords
+#---
   
 Msize <- dim(nV)
 numOfDocs <- Msize[1] 
@@ -17,7 +19,7 @@ D.diff <- list()
 C.diff <- list()
 
 
-for (i in 1:numOfDocs){
+for (i in 1:2){
 
 test.set <- nV[i,] # extract doc for test
 remove.doc <- rownames(nV)[i]
@@ -178,7 +180,11 @@ termsS.order  <- terms.countS[order(terms.countS[,1],decreasing = TRUE ),]
 
 
 finalKeysD <- as.matrix(terms.order)[1:maxTerms,1]
-finalKeysC <- as.matrix(termsS.order)[1:maxTerms,1]
+finalKeysC <- as.matrix(termsS.order)[1:maxTerms,1] 
+
+# TODO remove those keywords in both sets? 
+
+# TODO extend maxTerms and select best keywords with Rep.Dis
 
 #-----eval. for current keyword list + "missing" doc. 
 
@@ -257,4 +263,11 @@ abs.diff2 <- sum(abs.diff2)
 
 D.diff[[remove.doc]] <- abs.diff
 C.diff[[remove.doc]] <- abs.diff2
+}
+
+diff <- list()
+diff[["Dickens"]] <- D.diff
+diff[["Collins"]] <- C.diff
+
+return(diff)
 }

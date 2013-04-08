@@ -168,7 +168,7 @@ docTopics_short <- list()
 for (z in 1:numOfDocs){
   
   d <- docTopics[[z]]
-  docTopics_short[[z]] <-  d[1:100]
+  docTopics_short[[z]] <-  d[1:500]
   
 }
 #--------------------------------------
