@@ -5,21 +5,20 @@ library(fastICA)
 evalICA <- function(nV){
 
 #parameters
-numOfIC <- 85  # set no. of comp
+numOfIC <- 84  # set no. of comp
 keyThres <- 0.1
 compThres <- 2.0
 maxTerms <- 80 # to be set according to max number of desired keywords
 #---
   
-Msize <- dim(nV)
-numOfDocs <- Msize[1] 
-numOfComps <- Msize[2] 
 #----------------------------
 D.diff <- list()
 C.diff <- list()
+numOfD <- 86
 
 
-for (i in 1:2){
+for (i in 1:55){
+print(i)
 
 test.set <- nV[i,] # extract doc for test
 remove.doc <- rownames(nV)[i]
@@ -268,6 +267,7 @@ C.diff[[remove.doc]] <- abs.diff2
 diff <- list()
 diff[["Dickens"]] <- D.diff
 diff[["Collins"]] <- C.diff
+
 
 return(diff)
 }
