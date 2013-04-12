@@ -3,12 +3,30 @@
 
 #-- change dtm term weighting with log.
 
-n <- nV
-nl <- log(n)
-nl[nl==-Inf] <- 0
-nl[nl==Inf] <- 0
+Vsize <- dim(nV)
+numOfDocs <- Vsize[1] 
+numOfTerms <- Vsize[2] 
 
-nV <- nl
+n.relFreq <- matrix(0,nrow=numOfDocs, numOfTerms)
+rownames(n.relFreq) <- rownames(nV)
+colnames(n.relFreq) <- colnames(nV)
+for (n in rownames(nV)){
+  
+  curr.Doc <- nV[n,]
+  w.Token <- sum(curr.Doc) # sum over all tokens in doc
+  w.Type <- length(curr.Doc[curr.Doc != 0]) # not sure this is correct
+  
+  for(i in 1:length(curr.Doc)){
+    
+    curr.Vec <- curr.Doc[i]
+    
+    rel.Freq <- (curr.Vec +1)/ (w.Token+w.Type)
+  
+    n.relFreq[n,i] <- log(rel.Freq)
+  }
+  
+}
+nV <- n.relFreq
 
 
 
