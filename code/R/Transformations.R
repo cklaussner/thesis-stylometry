@@ -22,7 +22,7 @@ for (n in rownames(nV)){
     
     rel.Freq <- (curr.Vec +1)/ (w.Token+w.Type)
   
-    n.relFreq[n,i] <- log(rel.Freq)
+    n.relFreq[n,i] <- (rel.Freq)
   }
   
 }

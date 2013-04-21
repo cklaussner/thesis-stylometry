@@ -42,9 +42,9 @@ spDtm <- removeSparseTerms(dtm, 0.4) # 2nd argument indication of sparsity in ma
 #ics <- ica(pc,xwhiten, 4)
 #icasig <- calcIC(spDtm,ics,mixedMean)
 
-numOfIC <- 85  # set no. of comp
+numOfIC <- 86  # set no. of comp
 keyThres <- 0.1
-compThres <- 2.0
+compThres <- 1.0
 
 
 Y<- fastICA(nV, numOfIC, alg.typ = "deflation",
@@ -63,33 +63,34 @@ Ssize <- dim(S)
 numOfDocs <- Ssize[1] 
 numOfComps <- Ssize[2] 
 
-compT <- abs(A) # get absolute vals since ica model is ambiguous in regard to sign 
-docs <- abs(S)
+compT <- A
+docs <- S
 
 colnames(docs) <- paste(1:numOfIC)   # name components
 docnames <- rownames(nV)
 
 colnames(compT) <- colnames(nV)  # get term names
 compLst <- list()
+compLst.neg <- list()
 
 #-------------------------create list where for each comp - list of keyword-weight pair 
 
 for(i in 1:numOfIC) {   # sort keywords in components according to weight
-  key <- sort(compT[i, ],decreasing = TRUE) # sort comp. according to most prominent keywords
-  label <- names(key) # get term names
-  names(key) <- NULL # rmv term names
-  lst <- list()
   
-  for (j in 1:numOfTerms){ # for comp create list key - weight for easy access 
-    if(key[j] < keyThres){
-      break
-    }
-    
-    lst[[j]] <- cbind(label[j],key[j])
-    }
+  tmp <- sort(compT[i, ],decreasing = TRUE) # sort comp. according to most prominent keywords
   
- compLst[[i]] <-  as.list(lst)     # add to overall comp list
+  pos.key <-tmp[tmp > keyThres]
+  terms.pos <- as.matrix(pos.key)
+  rownames(terms.pos) <- names(pos.key)
+   
+  neg.key <- sort(tmp[tmp < 0.0],decreasing = FALSE) # still have to change this to key threshold
+  terms.neg <- as.matrix(neg.key)
+  rownames(terms.neg) <- names(neg.key)
+  
+  compLst[[i]] <-  terms.pos     # add to overall comp list
 
+  compLst.neg[[i]]  <- terms.neg
+  
 }
 
 
@@ -101,23 +102,23 @@ for (i in 1:length(compLst)){
 #---------------------------# same for components for each doc - order according to weight - pos in list = pos in doc
 
 docLst <- list()
+docLst.neg <- list()
+
 for (i in 1:numOfDocs){   # order comp for each document
   
-  c_ord <- sort(docs[i, ],decreasing = TRUE)  # sort accord. to weight
-
-  label <- names(c_ord) # get comp names
-  names(c_ord) <- NULL # rmv comp names
-  lst <- list()
+  comp.ord <- sort(docs[i, ],decreasing = TRUE)  # sort accord. to weight
   
-  for (j in 1:numOfIC){ 
-    
-    if(c_ord[j] < compThres){
-      break
-    }
-    lst[[j]] <- cbind(label[j],c_ord[j])
-  }
+  pos.comp <- comp.ord[comp.ord > compThres] 
+  comp.pos <- as.matrix(pos.comp)
+  rownames(comp.pos) <- names(pos.comp)
   
-  docLst[[docnames[i]]] <-  as.list(lst)    # add to overall comp list
+  neg.comp <- sort(comp.ord[comp.ord < 0.0],decreasing = FALSE)
+  comp.neg <- as.matrix(neg.comp)
+  rownames(comp.neg) <- names(neg.comp)
+  
+  docLst[[docnames[i]]] <-  comp.pos   # add to overall comp list
+  
+  docLst.neg[[docnames[i]]]  <- comp.neg
 }
 
 for (i in 1:length(docLst)){
@@ -130,128 +131,81 @@ for (i in 1:length(docLst)){
 
 
 #----------------------------------
-
-
 docTopics <- list()
 
-for (i in 1:numOfDocs){   # get keywords for each document
-  docKeys <- list()
-  complist <- as.list(docLst[i]) # get component list for each doc
+for (n in names(docLst)){   # get keywords for each document
   
-  csize <- length(complist[[1]]) # get no of comp for doc
+  complist <- docLst[[n]] # get component list for each doc
 
-  cmplist <- list()
-  for (j in 1:csize){ # for all comp for doc
-    print(j)
-    cmp <- as.integer(complist[[1]][[j]][[1]])  # extract comp no. so we can get keywords - complist[[1]][[j]][[2]] gets weight
-    print(i)
-    keyplusweight <-as.list(compLst[cmp]) # get keywords for comp.
-    
-    keysize <- length(keyplusweight[[1]]) # get no. of terms
-    compkeys <- list()
-    for (l in 1:keysize){
+  keylist <- as.matrix(rep(0, numOfTerms)) # overall list for keywords for document - begin with entry for all terms possible
+  rownames(keylist) <- colnames(nV)
+                       
+    for (c in rownames(complist)){ # for all comp for doc
+        
+      compweight <- as.double(complist[c,])
       
-      compkeys[[l]] <- keyplusweight[[1]][[l]][[1]] # extract all keys for curr comp
-      }
+      keys <- compLst[[as.integer(c)]] # get keywords for comp. 
     
-    docKeys <-c(docKeys,compkeys)
-    
+     if ((length(keys))!=0){
+      
+        keyweight <- keys*(2*compweight) # raise all keys in comp by weight it has in document
+        
+      
+        keylist[rownames(keyweight),] <- keylist[rownames(keyweight),] + keyweight[,1] # add to previous weights for keywords
+       
+        }
+  
     }
-  docTopics[[docnames[i]]] <- docKeys
+  names(keylist) <- rownames(keylist)
+  keylist <- keylist[keylist >0]
+  docTopics[[n]] <- as.matrix(keylist)
   
+}
+
+docTopics.neg <- list()
+
+for (n in names(docLst.neg)){   # get keywords for each document
+  
+  complist.neg <- docLst.neg[[n]] # get component list for each doc
+  
+  keylist.neg <- as.matrix(rep(0, numOfTerms)) # overall list for keywords for document - begin with entry for all terms possible
+  rownames(keylist.neg) <- colnames(nV)
+  
+  for (c in rownames(complist.neg)){ # for all comp for doc
+    
+    compweight.neg <- as.double(complist.neg[c,])
+    
+    keys.neg <- compLst.neg[[as.integer(c)]] # get keywords for comp. 
+    
+    if ((length(keys.neg))!=0){
+      
+      keyweight.neg <- keys.neg*(2*compweight.neg) # raise all keys in comp by weight it has in document (both negative => positive again)
+      
+      keylist.neg[rownames(keyweight.neg),] <- keylist[rownames(keyweight.neg),] + keyweight.neg[,1]
+      
+    }
+    
   }
-
-
-
-#-------------------# keep only first...keywords
-docTopics_short <- list()
-for (z in 1:numOfDocs){
-  
-  d <- docTopics[[z]]
-  docTopics_short[[z]] <-  d[1:500]
+  names(keylist.neg) <- rownames(keylist.neg)
+  keylist.neg <- keylist.ng[keylist.neg >0]
+  docTopics.neg[[n]] <- as.matrix(keylist.neg)
   
 }
-#--------------------------------------
-
-# ----------check intersection of different sets, maybe make as function with set length as args
-
-Dset <- docTopics[1:55]
-Cset <- docTopics[56:86]
-
-DsetL <- length(Dset)
-CsetL <- length(Cset)
-
-# iterate over each set:
-
-#----Dickens
-terms_intsctD <- names(Dset[[1]])
-
-for (i in 2:DsetL){
-  
-  new_set <- names(Dset[[i]])
-  terms_intsctD <- intersect(terms_intsctD,new_set)
-}
-
-# ----Collins
-terms_intsctC <- names(Cset[[1]])
-
-for (i in 2:CsetL){
-  
-  new_set <- names(Cset[[i]])
-  terms_intsctC <- intersect(terms_intsctC,new_set)
-}
-
-# -------- mixed take half of each set
-
-newDsetL <- as.integer(DsetL/2)
-newCsetL <- as.integer(CsetL/2)
 
 
-DsetRed <- Dset [1:newDsetL]
-CsetRed <- Cset[1:newDsetL]
 
+maxTerms <- 70
+collectMaxTerms <- function(docTopics,maxTerms){ # ----------------------- get overall word frequencies
 
-compSet <- c(DsetRed,CsetRed)
-CompsetL <- length(compSet)
-terms_intsctM <- names(compSet[[1]])
-
-for (i in 2:CompsetL){
-  
-  new_set <- names(compSet[[i]])
-  terms_intsctM <- intersect(terms_intsctM,new_set)
-}
-
-
-#alternative version
-d.terms <- all.terms
-for (d in names(terms)) { 
-  if (substr(d,1,1) == "D") { # take only documents whose first letter is 'd'
-    d.terms <- intersect(d.terms, terms[[d]])
-    print(d.terms)
+  docLength <- length(docTopics) # no. of Docs
+  terms <- list() # list initialisation
+  for (i in 1:docLength){
+    terms[[names(docTopics[i])]]<- rownames(docTopics[[i]])  # collect all terms for each doc
   }
-}
-
-#------------------------------intersection check
-
-
-
-# ----------------------- get overall word frequencies 
-maxTerms <- 70 # to be set according to max number of desired keywords
-docLength <- length(docTopics) # no. of Docs
-terms <- list() # list initialisation
-for (i in 1:docLength){
-  terms[[names(docTopics[i])]]<- names(docTopics[[i]])  # collect all terms for each doc
-}
-
-all.terms <- c()
-for (d in names(terms)) { all.terms <- union(all.terms, terms[[d]])}   # take union of all terms in set
-
-#d.terms <- all.terms
-#for (d in names(terms)) { 
- # print(substr(d,1,1))
-  #if (substr(d,1,1) == "D") { # take only documents whose first letter is 'D'
-  #  d.terms <- c(d.terms,intersect(d.terms, terms[[d]]))
-  #}}
+  
+  all.terms <- c()
+  for (d in names(terms)) { all.terms <- union(all.terms, terms[[d]])}   # take union of all terms in set  
+  
 
 terms.count <- as.matrix(rep(0, length(all.terms)))
 terms.countS <- as.matrix(rep(0, length(all.terms)))
@@ -259,72 +213,26 @@ rownames(terms.count) <- all.terms
 rownames(terms.countS) <- all.terms
 for (d in names(terms)) {
   if (substr(d,1,1) == "D"){
-  d.count <- as.matrix(xtabs(~terms[[d]]))
-  terms.count[rownames(d.count),] <- terms.count[rownames(d.count),] + d.count[,1]
-}else{ if(substr(d,1,1) == "W"){
-  dS.count <- as.matrix(xtabs(~terms[[d]]))
-  terms.countS[rownames(dS.count),] <- terms.countS[rownames(dS.count),] + dS.count[,1]
-  
-  
-}
+    d.count <- as.matrix(xtabs(~terms[[d]]))
+    terms.count[rownames(d.count),] <- terms.count[rownames(d.count),] + d.count[,1]
+    
+  }else{ if(substr(d,1,1) == "W"){
+    dS.count <- as.matrix(xtabs(~terms[[d]]))
+    terms.countS[rownames(dS.count),] <- terms.countS[rownames(dS.count),] + dS.count[,1]
+    
+    
+  }
   }}
 
 terms.order <- terms.count[order(terms.count[,1],decreasing = TRUE ),]    # order doc sets according to freq.
 termsS.order  <- terms.countS[order(terms.countS[,1],decreasing = TRUE ),]
 
+print(termsS.order)
 
 finalKeysD <- as.matrix(terms.order)[1:maxTerms,1]
 finalKeysC <- as.matrix(termsS.order)[1:maxTerms,1]
 
-#------------------ feature stability 
-terms.list <- list()
-terms.mean <- list()
-terms.std <- list()
-
-
-for (i in 1:length(docTopics)){
-  doc <- docTopics[[i]]
-  # put in check for docs of right set
-  for (term in names(doc)){
-    
-    
-    if (is.null(terms.list[[term]])){
-      terms.list[[term]] <- c(doc[[term]])  # put in first weight for term
-    }else{
-     terms.list[[term]] <- c(terms.list[[term]], doc[[term]])
-     
-      
-    } 
-  }
 }
-     
-for (key in names(terms.list)){
-  
-  terms.mean[[key]] <- mean(terms.list[[key]])
-  terms.std[[key]] <- sd(terms.list[[key]]) 
-}
-#------------Weighting of freq and stability
-
-terms.weight <- list()
-
-for (key in names(terms.list)){
-  
-  terms.weight[[key]] <- sum(terms.list[[key]])*1/terms.std[[key]]
-}
-
-#--------------write to output file
-
-sink("outfile.txt")
-for(s in 1:numOfDocs){
-  
-  d <- unique(docTopics_short[[s]])
-  ds <- paste(d,collapse= ' , ')
-  cat("\n")
-  cat(docnames[s])
-  cat("\n")
-  cat(ds)
-}
-sink()
 
 
 
