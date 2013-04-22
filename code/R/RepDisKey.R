@@ -1,5 +1,7 @@
 # Representative-Distinctiveness Feature Selection for Keyword Selection
 
+
+repDisKey <- function(docTopics,noOfD,noOfC,setToTest){
 # Normalisation--------------------------
 docTopics.norm <- list()
 for (n in names(docTopics)){
@@ -11,20 +13,19 @@ for (n in names(docTopics)){
 
 #---------------------------------------
 
-docTopicsS <- list()
-maxKeys <- 100  # select first ... terms for each doc
-for (z in names(docTopics.norm)){
+#docTopicsS <- list()
+#maxKeys <- 100  # select first ... terms for each doc
+#for (z in names(docTopics.norm)){
   
-  d <- docTopics.norm[[z]]
-  docTopicsS[[z]] <-  as.matrix(d[1:maxKeys])
-  rownames(docTopicsS[[z]]) <- rownames(docTopics.norm[[z]])[1:maxKeys]
-}
+ # d <- docTopics.norm[[z]]
+  #docTopicsS[[z]] <-  as.matrix(d[1:maxKeys])
+  #rownames(docTopicsS[[z]]) <- rownames(docTopics.norm[[z]])[1:maxKeys]}
 
-docTopics.norm <- docTopicsS
+#docTopics.norm <- docTopicsS
 
-#---------------------------------------
 
 #-------- collect all terms over document
+
 terms <- list() # list initialisation
 for (i in names(docTopics.norm)){
   terms[[i]]<- rownames(docTopics.norm[[i]])  # collect all terms for each doc
@@ -33,13 +34,23 @@ for (i in names(docTopics.norm)){
 all.terms <- c()
 for (d in names(terms)) { all.terms <- union(all.terms, terms[[d]])}   # take union of all terms in set
 
+dickens.set <- docTopics.norm[1:noOfD ]
+collins.set <- docTopics.norm[(noOfD+1):(noOfD+noOfC) ]
 
 
-  D.set <- docTopics.norm[1:noOfD ]
-  C.set <- docTopics.norm[(noOfD+1):(noOfD+noOfC) ]
+if (setToTest==1){
   
-  numOfD <- length(D.set)
-  numOfCol <- length(C.set)
+  prim.set <- dickens.set
+  sec.set <- collins.set
+}else{
+  prim.set <- collins.set
+  sec.set <- dickens.set
+}
+
+  
+  
+  numOfP <- length(prim.set)
+  numOfS <- length(sec.set)
   
  #-------- Representativeness: compare features within D.set - want lowest distance overall
   
@@ -50,20 +61,20 @@ for (d in names(terms)) { all.terms <- union(all.terms, terms[[d]])}   # take un
     
     sum.values <- c()
     
-    for (j in 1:(numOfD-1)){
+    for (j in 1:(numOfP-1)){
       
-      if ((t %in% names(D.set[[j]])) == FALSE){ 
+      if ((t %in% names(prim.set[[j]])) == FALSE){ 
       next
       }
-      d.1 <- as.double(D.set[[j]][t])
+      d.1 <- as.double(prim.set[[j]][t])
       
       
-       for (jj in j+1:(numOfD-j)){
+       for (jj in j+1:(numOfP-j)){
        
-         if ((t %in% names(D.set[[jj]])) == FALSE){ 
+         if ((t %in% names(prim.set[[jj]])) == FALSE){ 
            next
          }
-         d.2 <- as.double(D.set[[jj]][t])
+         d.2 <- as.double(prim.set[[jj]][t])
          
          dist.dd <- abs(d.1-d.2)
          sum.values <- c(sum.values,dist.dd)
@@ -73,7 +84,7 @@ for (d in names(terms)) { all.terms <- union(all.terms, terms[[d]])}   # take un
     }
     rep.values[[t]] <- sum.values
     
-    rep.feature[t] <- 2/ (abs(numOfD)^2 - abs(numOfD))* sum(sum.values)
+    rep.feature[t] <- 2/ (abs(numOfP)^2 - abs(numOfP))* sum(sum.values)
   }
   
   #------------Distinctiveness: compare Dickens and Collins set
@@ -87,33 +98,33 @@ for (d in names(terms)) { all.terms <- union(all.terms, terms[[d]])}   # take un
     
     sum.valuesDC <- c()
     
-    for (j in 1:numOfD){
+    for (j in 1:numOfP){
       
-      if ((t %in% names(D.set[[j]])) == FALSE){ 
+      if ((t %in% names(prim.set[[j]])) == FALSE){ 
         next
       }
       
-      d.1 <- as.double(D.set[[j]][t])
+      d.1 <- as.double(prim.set[[j]][t])
       
       
       
-      for (jj in 1:numOfCol){
+      for (jj in 1:numOfS){
         
-        if ((t %in% names(C.set[[jj]])) == FALSE){ 
+        if ((t %in% names(sec.set[[jj]])) == FALSE){ 
           next
         }
-        c.1 <- as.double(C.set[[jj]][t])
+        c.1 <- as.double(sec.set[[jj]][t])
         
         
         dist.dc <- abs(d.1 -c.1)
-        print(dist.dc)
+        
         sum.valuesDC <- c(sum.valuesDC,dist.dc)
       }
     }
     dist.values[[t]] <- sum.valuesDC
     frac <- 1
-    if (numOfCol != numOfD){
-      frac <- (2/ ((abs(numOfD))* (abs(numOfCol) - abs(numOfD))))
+    if (numOfS != numOfP){
+      frac <- (2/ ((abs(numOfP))* (abs(numOfS) - abs(numOfP))))
       }
     dist.feature[t] <- frac* sum(sum.valuesDC)
     
@@ -151,15 +162,14 @@ feature.comp <- feature.comp[feature.comp !=0]
   #------select highest no. of terms:  at the moment: everything above mean for set 
   
   mean.comp <- mean(feature.comp)
-  comp.red <- c()
-  for (i in 1:length(feature.comp)){
-    if(feature.comp[i] > mean.comp){
-      comp.red <- c(comp.red,i)
-    }
-  }
-  
-  
-  return(comp.red)
+  comp.red <- as.matrix(feature.comp[feature.comp > ((7/4)*mean.comp)])
+
+  print(comp.red)
+ 
+  vals <- list()
+  vals[["dist.F"]] <- comp.red 
+  vals[["rep.ex"]] <- rep.extra 
+  return(vals)
   
 }
 
