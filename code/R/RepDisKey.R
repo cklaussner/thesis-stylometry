@@ -125,9 +125,9 @@ for (d in names(terms)) { all.terms <- union(all.terms, terms[[d]])}   # take un
 new.terms <- union(names(rep.feature),names(dist.feature))
   
   dist.all <- list()
-  null.feat <- c()
+  rep.null <- c()
   rep.extra <- c()
-  feature.comp <- matrix(0,nrow=length(all.terms),ncol=1)
+  feature.comp <- as.matrix(rep(0, length(1)))
   
    for (i in new.terms){
     
@@ -146,12 +146,13 @@ new.terms <- union(names(rep.feature),names(dist.feature))
   }
    
    }}
+feature.comp <- feature.comp[feature.comp !=0]
   
   #------select highest no. of terms:  at the moment: everything above mean for set 
   
   mean.comp <- mean(feature.comp)
   comp.red <- c()
-  for (i in 1:numOfComps){
+  for (i in 1:length(feature.comp)){
     if(feature.comp[i] > mean.comp){
       comp.red <- c(comp.red,i)
     }
