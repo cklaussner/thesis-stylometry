@@ -1,15 +1,7 @@
 # Representative-Distinctiveness Feature Selection for Keyword Selection
 
 
-repDisKey <- function(docTopics,noOfD,noOfC,setToTest){
-# Normalisation--------------------------
-docTopics.norm <- list()
-for (n in names(docTopics)){
-  
-  d <- docTopics[[n]]
-  docTopics.norm[[n]] <-  d/length(d)
-  names(docTopics.norm[[n]]) <- rownames(docTopics.norm[[n]])
-}
+repDisKey <- function(docTopics.norm,noOfD,noOfC,setToTest){
 
 #---------------------------------------
 
@@ -24,16 +16,9 @@ for (n in names(docTopics)){
 #docTopics.norm <- docTopicsS
 
 
+
 #-------- collect all terms over document
-
-terms <- list() # list initialisation
-for (i in names(docTopics.norm)){
-  terms[[i]]<- rownames(docTopics.norm[[i]])  # collect all terms for each doc
-}
-
-all.terms <- c()
-for (d in names(terms)) { all.terms <- union(all.terms, terms[[d]])}   # take union of all terms in set
-
+ 
 dickens.set <- docTopics.norm[1:noOfD ]
 collins.set <- docTopics.norm[(noOfD+1):(noOfD+noOfC) ]
 
@@ -46,11 +31,19 @@ if (setToTest==1){
   prim.set <- collins.set
   sec.set <- dickens.set
 }
+numOfP <- length(prim.set)
+numOfS <- length(sec.set)
 
-  
-  
-  numOfP <- length(prim.set)
-  numOfS <- length(sec.set)
+terms <- list() # list initialisation
+for (i in names(prim.set)){
+  terms[[i]]<- rownames(prim.set[[i]])  # collect all terms for each doc
+}
+
+all.terms <- c()
+for (d in names(terms)) { all.terms <- union(all.terms, terms[[d]])}   # take union of all terms in set
+
+
+
   
  #-------- Representativeness: compare features within D.set - want lowest distance overall
   
@@ -129,7 +122,7 @@ if (setToTest==1){
     dist.feature[t] <- frac* sum(sum.valuesDC)
     
   }
-  
+  print("Features done!")
   
   
   #------ Feature comparison
@@ -162,13 +155,14 @@ feature.comp <- feature.comp[feature.comp !=0]
   #------select highest no. of terms:  at the moment: everything above mean for set 
   
   mean.comp <- mean(feature.comp)
-  comp.red <- as.matrix(feature.comp[feature.comp > ((7/4)*mean.comp)])
+  comp.red <- as.matrix(feature.comp[feature.comp > (1.2*mean.comp)])
 
   print(comp.red)
  
   vals <- list()
   vals[["dist.F"]] <- comp.red 
-  vals[["rep.ex"]] <- rep.extra 
+  if (length(rep.extra)!=0){
+    vals[["rep.ex"]] <- rep.extra}
   return(vals)
   
 }
