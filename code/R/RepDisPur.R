@@ -25,7 +25,7 @@ repDis <- function(matrixIn,noOfD,noOfC,setToTest){
   #all.terms <- c()
   #for (d in names(terms)) { all.terms <- union(all.terms, terms[[d]])}   # take union of all terms in set
   
-  #all.terms <- all.terms(1:500)
+  #all.terms <- all.terms(1:20)
   
   
   #-------- Representativeness: compare features within D.set - want lowest distance overall
@@ -41,11 +41,12 @@ repDis <- function(matrixIn,noOfD,noOfC,setToTest){
   
   for (t in all.terms){
     print(t)
-    doc.by.doc <- matrix(0, nrow=length(rownames(matrixIn)),ncol=length(rownames(matrixIn)))
-    rownames(doc.by.doc) <- rownames(matrixIn)
-    colnames(doc.by.doc) <- rownames(matrixIn)
+    doc.sim <- matrix(0, nrow=length(rownames(matrixIn)),ncol=length(rownames(matrixIn)))
+    rownames(doc.sim) <- rownames(matrixIn)
+    colnames(doc.sim) <- rownames(matrixIn)
     sum.values <- c()
     
+    #primary set
     for (j in 1:(numOfP-1)){
       
       if ((prim.set[j,t]) == 0){ 
@@ -53,28 +54,46 @@ repDis <- function(matrixIn,noOfD,noOfC,setToTest){
       }
       d.1 <- as.double(log(prim.set[j,t]))
       
-      
-      
       for (jj in j+1:(numOfP-j)){
         
         if ((prim.set[jj,t]) == 0){ 
           next
         }
-        
-         d.2 <- as.double(log(prim.set[jj,t]))
+        d.2 <- as.double(log(prim.set[jj,t]))
         
         dist.dd <- abs(d.1-d.2)
-        doc.by.doc[labels.P[j],labels.P[jj]] <- dist.dd
-         
+        doc.sim[labels.P[jj],labels.P[j]] <- dist.dd
         sum.values <- c(sum.values,dist.dd)
        }
     }
     rep.values[[t]] <- sum.values
-  
-    
     rep.feature[t] <- (2/ (abs(numOfP)^2 - abs(numOfP)))* sum(sum.values)
     
-    sum.valuesDC <- c()
+    # secpndary set
+    sum.valuesC <- c()
+    for (g in 1:(numOfS-1)){
+      
+      if ((sec.set[g,t]) == 0){ 
+        next
+      }
+      c.1 <- as.double(log(sec.set[g,t]))
+      
+      for (gg in g+1:(numOfS-g)){
+        
+        if ((sec.set[gg,t]) == 0){ 
+          next
+        }
+        
+        c.2 <- as.double(log(sec.set[gg,t]))
+        dist.cc <- abs(c.1-c.2)
+        doc.sim[labels.S[gg],labels.S[g]] <- dist.cc
+       
+        sum.valuesC <- c(sum.valuesC,dist.cc)
+      }
+    }
+    
+    # mixed set
+  sum.valuesDC <- c()
     
     for (l in 1:numOfP){
       
@@ -83,20 +102,16 @@ repDis <- function(matrixIn,noOfD,noOfC,setToTest){
       }
       
      d.2 <- as.double(log(prim.set[l,t]))
-     
-     
-      
-      for (ll in 1:numOfS){
+     for (ll in 1:numOfS){
         
         if ((sec.set[ll,t]) == 0){ 
           next
         }
           c.2 <- as.double(log(sec.set[ll,t]))
         
-        
         dist.dc <- abs(d.2 -c.2)
-        print(dist.dc)
-        doc.by.doc[labels.P[l],labels.S[ll]] <- dist.dc
+        
+       doc.sim[labels.P[l],labels.S[ll]] <- dist.dc
         sum.valuesDC <- c(sum.valuesDC,dist.dc)
       }
     }
@@ -106,7 +121,7 @@ repDis <- function(matrixIn,noOfD,noOfC,setToTest){
       frac <- (2/ ((abs(numOfP))* (abs(numOfS) - abs(numOfP))))
     }
     dist.feature[t] <- frac* sum(sum.valuesDC)
-    distance.docs[[t]] <- doc.by.doc
+    distance.docs[[t]] <- doc.sim
     
   }
     
