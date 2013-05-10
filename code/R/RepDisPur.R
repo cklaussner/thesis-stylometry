@@ -1,46 +1,32 @@
-repDis <- function(matrixIn,noOfD,noOfC,setToTest){
+repDis <- function(matrixIn,noOfD,noOfC,alpha){
   
-
-  #-------- collect all terms over document
+  prim.set <- matrixIn[1:noOfD, ]
+  sec.set <- matrixIn[(noOfD+1):(noOfD+noOfC), ]
   
-  dickens.set <- matrixIn[1:noOfD, ]
-  collins.set <- matrixIn[(noOfD+1):(noOfD+noOfC), ]
-  
-  
-  if (setToTest==1){
-    
-    prim.set <- dickens.set
-    sec.set <- collins.set
-  }else{
-    prim.set <- collins.set
-    sec.set <- dickens.set
-  }
   numOfP <- length(rownames(prim.set))
   numOfS <- length(rownames(sec.set))
   
-  all.terms <- c(colnames(prim.set))[1:3] # list initialisation
- # for (i in rownames(prim.set)){
-  #  terms[[i]]<- colnames(prim.set[[i],])  # collect all terms for each doc}
-  
-  #all.terms <- c()
-  #for (d in names(terms)) { all.terms <- union(all.terms, terms[[d]])}   # take union of all terms in set
-  
-  #all.terms <- all.terms(1:20)
-  
-  
-  #-------- Representativeness: compare features within D.set - want lowest distance overall
+  all.terms <- c(colnames(prim.set))[1:3] 
+ 
+  #-------- Representativeness: compare features within both sets
   
   rep.feature <- list()
   rep.values <- list()
   
+  rep2.feature <- list()
+  rep2.values <- list()
+  
   dist.feature <- list()
   dist.values <- list()
+  
   distance.docs <- list()
+  
   labels.P <- rownames(prim.set)
   labels.S <- rownames(sec.set)
   
   for (t in all.terms){
     print(t)
+    
     doc.sim <- matrix(0, nrow=length(rownames(matrixIn)),ncol=length(rownames(matrixIn)))
     rownames(doc.sim) <- rownames(matrixIn)
     colnames(doc.sim) <- rownames(matrixIn)
@@ -63,13 +49,14 @@ repDis <- function(matrixIn,noOfD,noOfC,setToTest){
         
         dist.dd <- abs(d.1-d.2)
         doc.sim[labels.P[jj],labels.P[j]] <- dist.dd
+        doc.sim[labels.P[j],labels.P[jj]] <- dist.dd
         sum.values <- c(sum.values,dist.dd)
        }
     }
     rep.values[[t]] <- sum.values
     rep.feature[t] <- (2/ (abs(numOfP)^2 - abs(numOfP)))* sum(sum.values)
     
-    # secpndary set
+    # secondary set
     sum.valuesC <- c()
     for (g in 1:(numOfS-1)){
       
@@ -87,13 +74,17 @@ repDis <- function(matrixIn,noOfD,noOfC,setToTest){
         c.2 <- as.double(log(sec.set[gg,t]))
         dist.cc <- abs(c.1-c.2)
         doc.sim[labels.S[gg],labels.S[g]] <- dist.cc
-       
+        doc.sim[labels.S[g],labels.S[gg]] <- dist.cc
         sum.valuesC <- c(sum.valuesC,dist.cc)
       }
     }
+    rep2.values[[t]] <- sum.valuesC
+    rep2.feature[t] <- (2/ (abs(numOfS)^2 - abs(numOfS)))* sum(sum.valuesC)
+    
+    
     
     # mixed set
-  sum.valuesDC <- c()
+    sum.valuesDC <- c()
     
     for (l in 1:numOfP){
       
@@ -112,7 +103,8 @@ repDis <- function(matrixIn,noOfD,noOfC,setToTest){
         dist.dc <- abs(d.2 -c.2)
         
        doc.sim[labels.P[l],labels.S[ll]] <- dist.dc
-        sum.valuesDC <- c(sum.valuesDC,dist.dc)
+       doc.sim[labels.S[ll],labels.P[l]] <- dist.dc
+       sum.valuesDC <- c(sum.valuesDC,dist.dc)
       }
     }
     dist.values[[t]] <- sum.valuesDC
@@ -129,37 +121,48 @@ repDis <- function(matrixIn,noOfD,noOfC,setToTest){
   
   
   #------ Feature comparison
-  new.terms <- union(names(rep.feature),names(dist.feature))
+  new.terms.1 <- union(names(rep.feature),names(dist.feature))
+  new.terms.2 <- union(names(rep2.feature),names(dist.feature))
   
   dist.all <- list()
- 
-  feature.comp <- as.matrix(rep(0, length(1)))
+  dist.all.2 <- list()
+  feature.1 <- as.matrix(rep(0, length(1)))
+  feature.2 <- as.matrix(rep(0, length(1)))
   
-  for (i in new.terms){
-    
-   
-        
+  #-----Dickens set
+  
+  for (i in new.terms.1){
         dist.all[[i]] <- c(dist.values[[i]],rep.values[[i]])
-        
-        feature.comp[i] <- abs(((dist.feature[[i]] - mean(dist.all[[i]]))/sd(dist.all[[i]])) - ((rep.feature[[i]]- mean(dist.all[[i]]))/sd(dist.all[[i]])))
-        print(feature.comp[i])
-      }
-      
-    feature.comp <- feature.comp[feature.comp !="NaN"]
-  feature.comp <- feature.comp[feature.comp !=0]
+        feature.1[i] <- abs(((dist.feature[[i]] - mean(dist.all[[i]]))/sd(dist.all[[i]])) - ((rep.feature[[i]]- mean(dist.all[[i]]))/sd(dist.all[[i]])))
+        }
+  
+  feature.1 <- feature.1[feature.1 !="NaN"]
+  feature.1 <- feature.1[feature.1 !=0]
+  
+  #--- same for Collins/other set
+  for (i in new.terms.2){
+    dist.all.2[[i]] <- c(dist.values[[i]],rep2.values[[i]])
+    
+    feature.2[i] <- abs(((dist.feature[[i]] - mean(dist.all.2[[i]]))/sd(dist.all.2[[i]])) - ((rep2.feature[[i]]- mean(dist.all.2[[i]]))/sd(dist.all.2[[i]])))
+  }
+  
+  feature.2 <- feature.2[feature.2 !="NaN"]
+  feature.2 <- feature.2[feature.2 !=0]
   
   #------select highest no. of terms:  at the moment: everything above mean for set 
   
-  mean.comp <- mean(feature.comp)
-  comp.red <- as.matrix(feature.comp[feature.comp > mean.comp])
+  mean.1 <- mean(feature.1)
+  feature.1.red <- as.matrix(feature.1[feature.1 > (alpha*mean.1)])
   
-  print(comp.red)
+  mean.2 <- mean(feature.2)
+  feature.2.red <- as.matrix(feature.2[feature.2 > (alpha* mean.2)])
   
-  vals <- list()
-  vals[["dist.F"]] <- comp.red 
-  vals[["dist.v"]] <- dist.values
-  vals[["rep.v"]] <- rep.values
   
-   return(vals)
+  values <- list()
+  values[["features.1"]] <- feature.1.red
+  values[["features.2"]] <- feature.2.red
+  values[["dis.Matrix"]] <- distance.docs
+  
+   return(values)
   
 }
