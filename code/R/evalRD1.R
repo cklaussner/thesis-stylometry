@@ -53,18 +53,34 @@ for (i in 1:numDocs){
   
   abs.diff <- sum(abs(hist.D - hist.test)) # calculate absolute difference
  
-    
-    
   D.diff[[remove.doc]] <- abs.diff
   
-  O.diff[[remove.doc]] <- abs.diff2
+  
+  # calculate histogram for RD features: Collins/other set
+  hist.O <- as.matrix(rep(0, length(RD.features.2)))
+  termsize.D <- sum(RD.features.2)
+  hist.O <- RD.features.2/termsize.D
+  
+  # extract Collins/other set keywords from test set vector
+  test.vec.2 <- as.matrix(rep(0, length(RD.features.2)))
+  rownames(test.vec.2) <- rownames(RD.features.2)
+  test.vec.2 <- as.matrix(test.set[rownames(RD.features.2),]) # retain only RD.features 
+  termsize.T2 <- sum(test.vec)
+  
+  # calculate histogram for RD features 2: test doc
+  hist.test.2 <- as.matrix(rep(0, length(RD.features.2)))
+  rownames(hist.test.2) <- rownames(RD.features.2)
+  hist.test.2 <- test.vec.2/termsize.T2
+  
+  abs.diff.2 <- sum(abs(hist.O - hist.test.2)) # calculate absolute difference
+  O.diff[[remove.doc]] <- abs.diff.2
   
     
-    
-  
 }
 
-return()
+
+
+  
   
 }
 
