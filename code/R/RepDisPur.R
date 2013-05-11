@@ -1,7 +1,15 @@
 repDis <- function(matrixIn,noOfD,noOfC,alpha){
   
-  prim.set <- matrixIn[1:noOfD, ]
-  sec.set <- matrixIn[(noOfD+1):(noOfD+noOfC), ]
+  if ((substr(rownames(matrixIn)[1],1,1) == "D")){
+    
+    prim.set <- matrixIn[1:noOfD, ]
+    sec.set <- matrixIn[(noOfD+1):(noOfD+noOfC), ]
+  }else{
+    
+    sec.set <- matrixIn[1:noOfC, ]
+    prim.set <- matrixIn[(noOfC+1):(noOfD+noOfC), ]
+  }
+  
   
   numOfP <- length(rownames(prim.set))
   numOfS <- length(rownames(sec.set))
