@@ -1,17 +1,20 @@
-
+source("RepDisPur.R")
 # Evaluation of Representativeness - Distinctiveness pure and simple 
 
 evalRD1 <- function(dataset,noOfD,noOfO){
   
   D.diff <- list()
   O.diff <- list()
+  D.sim <- list()
+  O.sim <- list()
+  cross.val <- list()
   
 
-dsize <- size(dataset)
+dsize <- dim(dataset)
 num.Docs <- dsize[1]  
 num.Terms <- dsize[2]
 
-for (i in 1:numDocs){
+for (i in 1:2){
   
   print(i)
   test.set <- as.matrix(dataset[i,]) # extract doc for test
@@ -29,11 +32,12 @@ for (i in 1:numDocs){
     }
   #---
   
-  diff <- repDis(train.set,num.of.D,num.of.nD,setToTest)
+  diff <- repDis(train.set,num.of.D,num.of.nD,1)
   
   RD.features <- diff$features.1 # get Dickens features
   RD.features.2 <-diff$features.2 # get other features
   dis.Matrix <- diff$dis.Matrix # get similarity matrix based on all terms individually
+  dis.Matrix.2 <- diff$dis.Matrix.2 # get similarity matrix for other authors
   
   # calculate histogram for RD features: Dickens
   hist.D <- as.matrix(rep(0, length(RD.features)))
@@ -74,13 +78,81 @@ for (i in 1:numDocs){
   
   abs.diff.2 <- sum(abs(hist.O - hist.test.2)) # calculate absolute difference
   O.diff[[remove.doc]] <- abs.diff.2
-  
+
+  #---- calculate similarity matrix based on RD.features: Dickens
+  matrix.RD <- as.matrix(rep(0,nrow=num.Docs,ncol=num.Docs))
+  for (i in 1:length(diff$dis.Matrix)){
     
+    m <- data.frame(diff$dis.Matrix[i])
+    matrix.RD <- matrix.RD +m
+    
+  }
+  D.sim[[remove.doc]] <- matrix.RD/length(diff$dis.Matrix))
+   
+  
+  #----calculate similarity matrix based on RD.features: Other
+  
+  
+  matrix.RD2 <- as.matrix(rep(0,nrow=num.Docs,ncol=num.Docs))
+  for (i in 1:length(diff$dis.Matrix.2)){
+    
+    m <- data.frame(diff$dis.Matrix.2[i])
+    matrix.RD2 <- matrix.RD2 +m
+    
+  }
+  O.sim[[remove.doc]] <- matrix.RD2/length(diff$dis.Matrix.2))
+  
 }
 
-
+  
+  #----------- sum up results of cross-validation
+  
+  dickens.list <- names(diff$Dickens)[substr((names(diff$Dickens)),1,1) == "D"]
+  other.list <- names(diff$Dickens)[substr((names(diff$Dickens)),1,1) != "D"]
+  
+  dsize <- length(dickens.list)
+  osize <- length(other.list)
+  results <- matrix(0, nrow = (dsize+2),ncol=3)
+  rownames(results) <- c(dickens.list,"mean","sum")
+  colnames(results) <- c("Dist.D.","Dist.C.","(Collins-Dickens)")
+  d <- diff[[1]]
+  c <- diff[[2]]
+  
+  for (n in dickens.list){
+    results[n,1] <- d[[n]]
+    results[n,2] <- c[[n]]
+    results[n,3] <- c[[n]]-d[[n]]
+    
+  }
+  results[dsize+1,] <- c(mean(results[1:dsize,1]),mean(results[1:dsize,2]),mean(results[1:dsize,3]))
+  results[dsize+2,] <- c(sum(results[1:dsize,1]),sum(results[1:dsize,2]),sum(results[1:dsize,3]))
+  
+  results.2 <- matrix(0, nrow = (osize+2),ncol=3)
+  rownames(results.2) <- c(other.list,"mean","sum")
+  colnames(results.2) <- c("Dist.D.","Dist.C.","(Dickens-Collins)")
+  d <- diff[[1]]
+  c <- diff[[2]]
+  
+  for (n in other.list){
+    
+    results.2[n,1] <- d[[n]]
+    results.2[n,2] <- c[[n]]
+    results.2[n,3] <- d[[n]]-c[[n]]
+    
+  }
+  results.2[osize+1,] <- c(mean(results.2[1:osize,1]),mean(results.2[1:osize,2]),mean(results.2[1:osize,3]))
+  results.2[osize+2,] <- c(sum(results.2[1:osize,1]),sum(results.2[1:osize,2]),sum(results.2[1:osize,3]))
+  
+  
+cross.val[["Dickens"]] <- results
+cross.val[["Other"]] <- results.2
+cross.val[["D.sim"]] <- D.sim
+cross.val[["O.sim"]] <- O.sim
 
   
+  
+  
+return(cross.val)
   
 }
 

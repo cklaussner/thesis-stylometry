@@ -157,12 +157,11 @@ repDis <- function(matrixIn,noOfD,noOfC,alpha){
   mean.2 <- mean(feature.2)
   feature.2.red <- as.matrix(feature.2[feature.2 > (alpha* mean.2)])
   
-  
   values <- list()
   values[["features.1"]] <- feature.1.red
   values[["features.2"]] <- feature.2.red
-  values[["dis.Matrix"]] <- distance.docs
-  
+  values[["dis.Matrix"]] <- distance.docs[rownames(feature.1.red)]
+  values[["dis.Matrix.2"]] <- distance.docs[rownames(feature.2.red)]
    return(values)
   
 }
