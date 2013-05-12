@@ -1,0 +1,37 @@
+Author: title # Gutenberg idx # file name
+
+18th century: 
+
+Defoe: Captain Singleton # 6422  # d_6422
+Defoe: Journal of Prague year   # 376 # d_376
+Defoe:  Military Memoirs of Capt. George Carleton # 14436  #d_14436
+Defoe: Moll Flanders                             #370      #d_370
+Defoe: Robinson Crusoe                           #521      # d_521
+Fielding: A journey from this world to the next #1147     #f_1147
+Fielding: Amelia                                #6098     # f_6098
+Fielding:  Jonathan Wild                        #5256  #f_5256
+Fielding: Joseph Andrews I&II                 #9611/9609 #f_#9609 
+Fielding: Tom Jones                           #6593       # f_6593
+Goldsmith: The Vicar of Wakefield         #2667       #g_2667
+Richardson: Clarrissa I - IX              #12398      #r_12398
+Richardson: Pamela                        #6124       #r_6124
+Smollett: Peregrine Pickle                #4084        #s_4084
+Smollett: Travels through France and Italy #2311    #s_2311
+Smollett: The Adventures of Ferdinand Count Fathom #6761 #s_6761
+Smollett: HUMPHRY CLINKER                         #2160 #s_2160
+Smollett: The Adventures of Sir Launcelot Greaves #6758 #s_6758
+Smollett: The Adventures of Roderick Random   #4085    #s_4085
+Sterne: A Sentimental Journey                  #804 #st_804
+Sterne: The Life and Opinions of Tristram Shandy #1079 #st_1079
+Swift: A Tale of a Tub   #4737  #sw_4737
+Swift: Gulliver's Travels     #17157 #sw_17157
+Swift: The Journal to Stella #4208 #sw_4208
+
+19th century:
+Bronte: Agnes Grey  #767 #a.b_767
+Austen: Emma #158   #a_158
+Austen: Mansfield Park #141 #a_141
+Austen: Pride and Prejudice #42671 #a_42671
+Austen: Northanger Abbey  #121 #a_121
+Austen: Sense and Sensibility #21839 #a_21839
+Austen: Persuasion    #105 #a_105
