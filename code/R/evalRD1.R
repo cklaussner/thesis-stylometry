@@ -4,6 +4,36 @@ library(psych)
 
 evalRD1 <- function(dataset,noOfD,noOfO){
   
+  
+  # check frequencies of terms
+  if ((substr(rownames(dataset)[1],1,1) == "D")){
+    print("Dickens is first")
+    prim.set <- dataset[1:noOfD, ]
+    sec.set <- dataset[(noOfD+1):(noOfD+noOfO), ]
+  }else{
+    print("Compare set is first")
+    sec.set <- dataset[1:noOfO, ]
+    prim.set <- dataset[(noOfO+1):(noOfD+noOf0), ]
+  }
+  
+  freq.list <- matrix(0,nrow= length(colnames(dataset)), ncol=2)
+  rownames(freq.list) <- colnames(dataset)
+  colnames(freq.list) <- c("D","nD")
+  d.terms <- c()
+  nd.terms <- c()
+  for (l in colnames(dataset)){
+    
+    D <- sum(prim.set[,l])/noOfD
+    nD <- sum(sec.set[,l])/noOfO
+    if (D > nD){
+    freq.list[l,1] <- sum(prim.set[,l])/noOfD
+    d.terms <- c(d.terms,l)
+    }else{
+      freq.list[l,2] <- sum(sec.set[,l])/noOfO
+      nd.terms <- c(nd.terms,l)
+    }
+  }
+  
   D.diff <- list()
   O.diff <- list()
   D.sim <- list()
@@ -17,7 +47,7 @@ dsize <- dim(dataset)
 num.Docs <- dsize[1]  
 num.Terms <- dsize[2]
 
-for (i in 1:2){
+for (i in 1:1){
   
   print(i)
   test.set <- as.matrix(dataset[i,]) # extract doc for test
@@ -35,12 +65,18 @@ for (i in 1:2){
     }
   #---
   
-  diff <- repDis(train.set,num.of.D,num.of.nD,1)
+  diff <- repDis(train.set,num.of.D,num.of.nD,1.1)
   
   RD.features <- diff$features.1 # get Dickens features
+  rd1 <- intersect(rownames(RD.features),d.terms)
+  RD.features <- as.matrix(RD.features[rd1,])
   D.feat[[remove.doc]] <- RD.features
+  
   RD.features.2 <-diff$features.2 # get other features
+  rd2 <- intersect(rownames(RD.features.2),nd.terms)
+  RD.features.2 <- as.matrix(RD.features.2[rd2,])
   O.feat[[remove.doc]] <- RD.features.2
+  
   dis.Matrix <- diff$dis.Matrix # get similarity matrix based on all terms individually
   dis.Matrix.2 <- diff$dis.Matrix.2 # get similarity matrix for other authors
   
@@ -60,8 +96,7 @@ for (i in 1:2){
   rownames(hist.test) <- rownames(RD.features)
   hist.test <- test.vec/termsize.T
   
-  abs.diff <- sum(abs(hist.D - hist.test)) # calculate absolute difference
- 
+  abs.diff <- (sum(abs(hist.D - hist.test)))/length(RD.features) # calculate absolute difference
   D.diff[[remove.doc]] <- abs.diff
   
   
@@ -81,7 +116,7 @@ for (i in 1:2){
   rownames(hist.test.2) <- rownames(RD.features.2)
   hist.test.2 <- test.vec.2/termsize.T2
   
-  abs.diff.2 <- sum(abs(hist.O - hist.test.2)) # calculate absolute difference
+  abs.diff.2 <- (sum(abs(hist.O - hist.test.2)))#/length(RD.features.2) # calculate absolute difference
   O.diff[[remove.doc]] <- abs.diff.2
   
 
@@ -120,6 +155,7 @@ for (i in 1:2){
   #----------- sum up results of cross-validation
   
   dickens.list <- names(D.diff)[substr((names(D.diff)),1,1) == "D"]
+  print(dickens.list)
   other.list <- names(O.diff)[substr((names(O.diff)),1,1) != "D"]
   
   dsize <- length(dickens.list)

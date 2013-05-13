@@ -28,10 +28,34 @@ Swift: Gulliver's Travels     #17157 #sw_17157
 Swift: The Journal to Stella #4208 #sw_4208
 
 19th century:
-Bronte: Agnes Grey  #767 #a.b_767
+BronteA: Agnes Grey  #767 #a.b_767
 Austen: Emma #158   #a_158
 Austen: Mansfield Park #141 #a_141
 Austen: Pride and Prejudice #42671 #a_42671
 Austen: Northanger Abbey  #121 #a_121
 Austen: Sense and Sensibility #21839 #a_21839
 Austen: Persuasion    #105 #a_105
+BronteC: The Professor #1028  #c.b_1028
+BronteC:  Villette #9182 #c.b_9182
+BronteC: Jane Eyre #1260  #c.b_1260
+BronteE: Wuthering Heights #768 #e.b_768
+Eliot: Daniel Deronda   #7469 #e_7469
+Eliot: Silas Marner   #550 #e_550
+Eliot: Middlemarch   #145 #e_145
+Eliot: The Mill on the Floss   #6688 #e_6688
+Eliot: Brother Jacob   #2171 #e_2171
+Eliot: Adam Bede   #507 #e_507
+Gaskell: Cranford  #394 #g_394
+Gaskell: Sylvia's Lovers #4537 #g_4537
+Gaskell: Mary Barton #2153 #g_2153
+Thackeray: Vanity Fair #599 #t_599
+Thackeray: Barry Lyndon #4558 #t_4558
+Trollope: Doctor Thorne #3166 # tr_3166
+Trollope: Barchester Towers #3409 #tr_3409
+Trollope: The Warden #619 #tr_619
+Trollope: Phineas Finn #18000 tr_18000
+Trollope: Can You Forgive Her #19500 #tr_19500
+Trollope: The Eustace Diamonds #7381 #tr_7381
+
+
+
