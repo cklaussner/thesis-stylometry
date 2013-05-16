@@ -13,7 +13,7 @@ repDis <- function(matrixIn,noOfD,noOfC,alpha){
   
   numOfP <- length(rownames(prim.set))
   numOfS <- length(rownames(sec.set))
-  all.terms <- c(colnames(prim.set))[1:100]
+  all.terms <- c(colnames(prim.set))[1:1000]
  
   #-------- Representativeness: compare features within both sets
   
@@ -87,7 +87,7 @@ repDis <- function(matrixIn,noOfD,noOfC,alpha){
       }
     }
     rep2.values[[t]] <- sum.valuesC
-    rep2.feature[t] <- (2/ (abs(numOfS)^2 - abs(numOfS)))* sum(sum.valuesC)
+    rep2.feature[t] <- (2/ ((numOfS^2) - numOfS))* sum(sum.valuesC)
     
     
     
@@ -117,17 +117,14 @@ repDis <- function(matrixIn,noOfD,noOfC,alpha){
     }
     dist.values[[t]] <- sum.valuesDC
    
-    if (numOfS != numOfP){
-      frac <- (2/ ((abs(numOfP))* (abs(numOfS) - abs(numOfP))))
-      frac.2 <- (2/ ((abs(numOfS))* (abs(numOfP) - abs(numOfS))))
-    } else{
-      frac <- (2/ abs(numOfP))
-      frac.2 <- (2/ abs(numOfS))
-      }
+    
+      frac <- 1/ ((numOfP)* ((numOfS+numOfP) - numOfP))
+      frac.2 <- 1/ ((numOfS)* ((numOfP+numOfS) - abs(numOfS)))
+   
     
     
     dist.feature[t] <- frac* sum(sum.valuesDC)
-    print(dist.feature[t])
+    
     dist.feature.2[t] <- frac.2* sum(sum.valuesDC)
     distance.docs[[t]] <- doc.sim
     
@@ -151,7 +148,7 @@ repDis <- function(matrixIn,noOfD,noOfC,alpha){
   
   for (i in new.terms.1){
         
-        dist.all[[i]] <- c(dist.values[[i]],rep.values[[i]])
+        dist.all[[i]] <- c(dist.values[[i]],rep.values[[i]],dist.values[[i]])
         feature.1[i] <- abs(((dist.feature[[i]] - mean(dist.all[[i]]))/sd(dist.all[[i]])) - ((rep.feature[[i]]- mean(dist.all[[i]]))/sd(dist.all[[i]])))
         }
   
@@ -160,7 +157,7 @@ repDis <- function(matrixIn,noOfD,noOfC,alpha){
   
   #--- same for Collins/other set
   for (i in new.terms.2){
-    dist.all.2[[i]] <- c(dist.values[[i]],rep2.values[[i]])
+    dist.all.2[[i]] <- c(dist.values[[i]],rep2.values[[i]],dist.values[[i]])
     
     feature.2[i] <- abs(((dist.feature.2[[i]] - mean(dist.all.2[[i]]))/sd(dist.all.2[[i]])) - ((rep2.feature[[i]]- mean(dist.all.2[[i]]))/sd(dist.all.2[[i]])))
   }

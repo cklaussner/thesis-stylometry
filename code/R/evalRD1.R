@@ -4,7 +4,6 @@ library(psych)
 
 evalRD1 <- function(dataset,noOfD,noOfO){
   
-  
   # check frequencies of terms
   if ((substr(rownames(dataset)[1],1,1) == "D")){
     print("Dickens is first")
@@ -34,6 +33,9 @@ evalRD1 <- function(dataset,noOfD,noOfO){
     }
   }
   
+  
+  #--------------------
+  
   D.diff <- list()
   O.diff <- list()
   D.sim <- list()
@@ -47,7 +49,7 @@ dsize <- dim(dataset)
 num.Docs <- dsize[1]  
 num.Terms <- dsize[2]
 
-for (i in 1:1){
+for (i in 1:2){
   
   print(i)
   test.set <- as.matrix(dataset[i,]) # extract doc for test
@@ -63,7 +65,7 @@ for (i in 1:1){
     }else{
       num.of.nD <- num.of.nD-1
     }
-  #---
+  #-----
   
   diff <- repDis(train.set,num.of.D,num.of.nD,1.1)
   
@@ -198,6 +200,7 @@ cross.val[["D.sim"]] <- D.sim
 cross.val[["O.sim"]] <- O.sim
 cross.val[["D.feat"]] <- D.feat
 cross.val[["O.feat"]] <- O.feat
+cross.val[["features"]] <- diff
   
   
   
