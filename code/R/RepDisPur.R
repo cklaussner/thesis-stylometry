@@ -1,19 +1,12 @@
-repDis <- function(matrixIn,noOfD,noOfC,alpha){
+repDis <- function(matrixIn,noOfD,noOfC,noOfFeat, alpha){
   
-  if ((substr(rownames(matrixIn)[1],1,1) == "D")){
-    print("Dickens is first")
     prim.set <- matrixIn[1:noOfD, ]
     sec.set <- matrixIn[(noOfD+1):(noOfD+noOfC), ]
-   }else{
-    print("Compare set is first")
-     sec.set <- matrixIn[1:noOfC, ]
-     prim.set <- matrixIn[(noOfC+1):(noOfD+noOfC), ]
-   }
-   
+  
   
   numOfP <- length(rownames(prim.set))
   numOfS <- length(rownames(sec.set))
-  all.terms <- c(colnames(prim.set))[1:1000]
+  all.terms <- c(colnames(prim.set))[1:noOfFeat]
  
   #-------- Representativeness: compare features within both sets
   
@@ -27,7 +20,7 @@ repDis <- function(matrixIn,noOfD,noOfC,alpha){
   dist.feature.2 <- list()
   dist.values <- list()
   
-  distance.docs <- list()
+  #distance.docs <- list()
   
   labels.P <- rownames(prim.set)
   labels.S <- rownames(sec.set)
@@ -35,9 +28,9 @@ repDis <- function(matrixIn,noOfD,noOfC,alpha){
   for (t in all.terms){
     print(t)
     
-    doc.sim <- matrix(0, nrow=length(rownames(matrixIn)),ncol=length(rownames(matrixIn)))
-    rownames(doc.sim) <- rownames(matrixIn)
-    colnames(doc.sim) <- rownames(matrixIn)
+   # doc.sim <- matrix(0, nrow=length(rownames(matrixIn)),ncol=length(rownames(matrixIn)))
+    #rownames(doc.sim) <- rownames(matrixIn)
+    #colnames(doc.sim) <- rownames(matrixIn)
     sum.values <- c()
     
     #primary set
@@ -56,8 +49,8 @@ repDis <- function(matrixIn,noOfD,noOfC,alpha){
         d.2 <- as.double(log(prim.set[jj,t]))
         
         dist.dd <- abs(d.1-d.2)
-        doc.sim[labels.P[jj],labels.P[j]] <- dist.dd
-        doc.sim[labels.P[j],labels.P[jj]] <- dist.dd
+        #doc.sim[labels.P[jj],labels.P[j]] <- dist.dd
+        #doc.sim[labels.P[j],labels.P[jj]] <- dist.dd
         sum.values <- c(sum.values,dist.dd)
        }
     }
@@ -81,8 +74,8 @@ repDis <- function(matrixIn,noOfD,noOfC,alpha){
         
         c.2 <- as.double(log(sec.set[gg,t]))
         dist.cc <- abs(c.1-c.2)
-        doc.sim[labels.S[gg],labels.S[g]] <- dist.cc
-        doc.sim[labels.S[g],labels.S[gg]] <- dist.cc
+        #doc.sim[labels.S[gg],labels.S[g]] <- dist.cc
+        #doc.sim[labels.S[g],labels.S[gg]] <- dist.cc
         sum.valuesC <- c(sum.valuesC,dist.cc)
       }
     }
@@ -110,8 +103,8 @@ repDis <- function(matrixIn,noOfD,noOfC,alpha){
         
         dist.dc <- abs(d.2 -c.2)
         
-       doc.sim[labels.P[l],labels.S[ll]] <- dist.dc
-       doc.sim[labels.S[ll],labels.P[l]] <- dist.dc
+       #doc.sim[labels.P[l],labels.S[ll]] <- dist.dc
+       #doc.sim[labels.S[ll],labels.P[l]] <- dist.dc
        sum.valuesDC <- c(sum.valuesDC,dist.dc)
       }
     }
@@ -126,7 +119,7 @@ repDis <- function(matrixIn,noOfD,noOfC,alpha){
     dist.feature[t] <- frac* sum(sum.valuesDC)
     
     dist.feature.2[t] <- frac.2* sum(sum.valuesDC)
-    distance.docs[[t]] <- doc.sim
+    #distance.docs[[t]] <- doc.sim
     
   }
   
@@ -176,8 +169,8 @@ repDis <- function(matrixIn,noOfD,noOfC,alpha){
   values <- list()
   values[["features.1"]] <- feature.1.red
   values[["features.2"]] <- feature.2.red
-  values[["dis.Matrix"]] <- distance.docs[rownames(feature.1.red)]
-  values[["dis.Matrix.2"]] <- distance.docs[rownames(feature.2.red)]
+ # values[["dis.Matrix"]] <- distance.docs[rownames(feature.1.red)]
+  #values[["dis.Matrix.2"]] <- distance.docs[rownames(feature.2.red)]
    return(values)
   
 }
