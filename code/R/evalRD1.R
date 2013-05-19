@@ -71,20 +71,19 @@ for (i in 1:2){
   O.diff[[test.doc]] <- hist.diff(test.set,RD.features.2)
 
   
- 
-
    sim.D <- dissim.Matrix(dataset,RD.features) # calculate similarity matrix based on RD.features: Dickens
-   cr <- getCorrRand(sim.D, "complete", num.of.D, num.of.nD) # try with some other metric?
+   cr <- getCorrRand(sim.D, "complete", noOfD, noOfO) # try with some other metric?
    D.sim[[test.doc]]<- sim.D
    clust.eval[[test.doc]] <- cr
    
    sim.O <- dissim.Matrix(dataset, RD.features.2) #calculate similarity matrix based on RD.features: Other
-   cr.2 <- getCorrRand(sim.0, "complete", num.of.D, num.of.nD) # try with some other metric?
+   cr.2 <- getCorrRand(sim.O, "complete",noOfD, noOfO) # try with some other metric?
    O.sim[[test.doc]] <- sim.O
    clust.eval.2[[test.doc]] <- cr.2
 
 
 }
+  
  #----------- sum up results of cross-validation
   
 hist.results <- cv.results(D.diff,O.diff,clust.eval,clust.eval.2)

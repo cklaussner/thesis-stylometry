@@ -67,9 +67,9 @@ return(abs.diff)
 
 # sum up results of cross-validation
 
-cv.results <- function(D.diff,O.diff,evalClust,evalClust.2){
+cv.results <- function(D.diff,O.diff,clust.eval,clust.eval.2){
   
-cv. <- list()
+cv <- list()
   
 dickens.list <- names(D.diff)[substr((names(D.diff)),1,1) == "D"] # get Dickens elements tested 
 nonDickens.list <- names(D.diff)[substr((names(D.diff)),1,1) != "D"] # get nonDickens elements tested 
@@ -89,16 +89,16 @@ for (n in dickens.list){
   results[n,1] <- d[[n]]
   results[n,2] <- c[[n]]
   results[n,3] <- c[[n]]-d[[n]]
-  results[n,4] <- evalClust[[n]] # note corrected Rand result
+  results[n,4] <- clust.eval[[n]] # note corrected Rand result
 }
 results[dsize+1,] <- c(mean(results[1:dsize,1]),mean(results[1:dsize,2]),mean(results[1:dsize,3]),mean(results[1:dsize,4]) )
 results[dsize+2,] <- c(sum(results[1:dsize,1]),sum(results[1:dsize,2]),sum(results[1:dsize,3]),sum(results[1:dsize,4]))
 
-# t-test
+#t-test
 
-D.T <- t.test(results[1:dsize,1],results[1:dsize,2],alternative="greater",var.equal=T)
+#D.T <- t.test(results[1:dsize,1],results[1:dsize,2],alternative="greater",var.equal=T)
 
-cv[["D-t"]] <- D.T
+#cv[["D-t"]] <- D.T
 cv[["Dickens"]] <- results
 
 }
@@ -115,7 +115,7 @@ for (n in other.list){
   results.2[n,1] <- d[[n]]
   results.2[n,2] <- c[[n]]
   results.2[n,3] <- d[[n]]-c[[n]]
-  results.2[n,4] <- evalClust.2[[n]]
+  results.2[n,4] <- clust.eval.2[[n]]
 }
 results.2[osize+1,] <- c(mean(results.2[1:osize,1]),mean(results.2[1:osize,2]),mean(results.2[1:osize,3]),mean(results.2[1:osize,4]))
 results.2[osize+2,] <- c(sum(results.2[1:osize,1]),sum(results.2[1:osize,2]),sum(results.2[1:osize,3]),sum(results.2[1:osize,4]))
