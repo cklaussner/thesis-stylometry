@@ -22,6 +22,48 @@ return(rbind(prim.set, sec.set)) # have dataset in right order: Dickens-nonDicke
 
 
 
+featureConsistency <- function(feature.list){
+  
+  consist <- list()
+  results <- matrix(0, nrow = length(feature.list)+2,ncol=2)
+  rownames(results) <- c(c(names(feature.list)),"mean", "std.")
+  colnames(results) <- c("list length","list after inter.")
+  
+  sum.feat <- c()
+  for (i in names(feature.list)){
+    
+    sum.feat <- c(sum.feat,length(feature.list[[i]]))
+    print(sum.feat)
+    results[i, 1] <- length(feature.list[[i]])
+  }
+  results["mean", 1] <- mean(sum.feat)
+  results["std.", 1] <- sd(sum.feat)
+  
+  if (length(feature.list)>1){
+  intersect <- rownames(feature.list[[1]]) 
+  results[1, 2] <- length(feature.list[[1]])
+  sum.int <- length(feature.list[[1]])
+  for (i in 2:length(feature.list)){
+    intersect <- intersect(intersect,rownames(feature.list[[i]]))
+    results[i, 2] <- length(intersect)
+    sum.int <- c(sum.int,length(intersect))
+  }
+  results["mean", 2] <- mean(sum.int)
+  results["std.", 2] <- sd(sum.int)
+  consist[["intersect"]] <- intersect
+}
+  consist[["results"]] <- results
+   
+}
+
+
+
+
+
+
+
+
+
 # computes combination of various dissim. Matrices for a list of features 
 dissim.Matrix <- function(input,RD.features){
 

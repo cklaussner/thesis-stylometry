@@ -52,12 +52,14 @@ for (i in 1:2){
   D.feat.p[[test.doc]] <- RD.features  # save the orinal set
   rd1 <- intersect(rownames(RD.features),d.terms)
   RD.features <- as.matrix(RD.features[rd1,])
+  RD.features <- as.matrix(RD.features[order(RD.features[,1],decreasing = TRUE ),])
   D.feat[[test.doc]] <- RD.features
   
   RD.features.2 <-diff$features.2 # get other features
   O.feat.p[[test.doc]] <- RD.features.2  # save the orinal set
   rd2 <- intersect(rownames(RD.features.2),nd.terms)
   RD.features.2 <- as.matrix(RD.features.2[rd2,])
+  RD.features.2 <- as.matrix(RD.features.2[order(RD.features.2[,1],decreasing = TRUE ),])
   O.feat[[test.doc]] <- RD.features.2
   
   
@@ -88,6 +90,9 @@ for (i in 1:2){
   
 hist.results <- cv.results(D.diff,O.diff,clust.eval,clust.eval.2)
   
+  featConsist <- featureConsistency(D.feat)
+  featConsist.2 <- featureConsistency(O.feat)
+  
   
 cross.val[["hist.res"]] <- hist.results
 cross.val[["D.sim"]] <- D.sim
@@ -96,6 +101,8 @@ cross.val[["D.feat"]] <- D.feat
 cross.val[["O.feat"]] <- O.feat
 cross.val[["D.feat.O"]] <- D.feat.p
 cross.val[["O.feat.O"]] <- O.feat.p
+cross.val[["D.consist"]] <- featConsist
+cross.val[["O.consist"]] <- featConsist.2
   
   
 return(cross.val)

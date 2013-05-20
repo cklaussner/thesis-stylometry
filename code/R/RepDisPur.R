@@ -162,7 +162,7 @@ repDis <- function(matrixIn,noOfD,noOfC,noOfFeat, alpha){
   
   mean.1 <- mean(feature.1)
   feature.1.red <- as.matrix(feature.1[feature.1 > (alpha*mean.1)])
-  
+   
   mean.2 <- mean(feature.2)
   feature.2.red <- as.matrix(feature.2[feature.2 > (alpha* mean.2)])
   
