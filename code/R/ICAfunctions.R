@@ -22,7 +22,7 @@ for(i in 1:numOfIC){   # select keywords in components according to weight
   
   terms.pos <- as.matrix(tmp[tmp> comp.thres[i]]) # only retain terms above component threshold
   
-  terms.neg <- as.matrix(tmp[tmp < (-comp.thres[i]]) # only retain terms below - component threshold
+  terms.neg <- as.matrix(tmp[tmp < (-comp.thres[i])]) # only retain terms below - component threshold
   
   compLst[[i]] <-  rbind(terms.pos,terms.neg)     # add to overall comp list
 
@@ -55,6 +55,50 @@ for (n in rownames(sec.set)){ # for nonDickens
 return(docLst)
   
 }
+
+
+#### combine term-component weight and component - document weight into term-component weight
+
+combineWeights <- function(nV,compLst,docLst){
+docTopics <- list()
+
+
+for (n in names(docLst)){   #get relevant terms for each document
+  
+  keyList <- as.matrix(rep(0, (dim(nV)[2]))) # overall list for keywords for document - begin with entry for all terms possible
+  rownames(keyList) <- colnames(nV)
+  
+  compList <- docLst[[n]] # get component list for doc
+  
+  for (c in rownames(compList)){ 
+    
+    compWeight <- as.double(compList[c,]) # get component weight 
+   
+    keys <- compLst[[as.integer(c)]] # get terms for comp. 
+    
+    if ((length(keys))!=0){
+      
+      keyWeight <- keys*compWeight # raise all keys in comp by weight it has in document #TODO - have 2* compWeight???
+      
+      keyList[rownames(keyWeight),] <- keyList[rownames(keyWeight),] + keyWeight[,1] # add to previous weights for keywords
+      }
+    
+  }
+  names(keyList) <- rownames(keyList)
+  keyList <- as.matrix(keyList[keyList !=0])
+  docTopics[[n]] <- as.matrix(keyList[order(keyList[,1],decreasing = TRUE ),])
+}
+
+return(docTopics)
+}
+
+# choose author terms - average of term over all of authors documents
+
+
+
+
+
+
 
 
 
