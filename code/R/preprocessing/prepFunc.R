@@ -1,4 +1,4 @@
-#library(tm)  
+library(tm)  
 #library (plyr)
 
 # set parameters
@@ -6,31 +6,22 @@
 
 # create document-term matrix with prepocessing 
 
-corpus <- function(corpusLoc) {
+prepare <- function(loc) {
 
   print("...creating Text corpus...")
  
  (docCorpus <- Corpus(DirSource(loc),readerControl = list(language = "en")))   # create corpus from source
 
- return(docCorpus)
- }
- 
- 
- prep <- function(textCorpus){
- 
-      print("...prepocessing, - to lower case, removing Numbers and Punctuation...")
+
+  print("...prepocessing, - to lower case, removing Numbers and Punctuation...")
       
     #textCorpus <- tm_map(textCorpus, stripWhitespace)  # seems to have some unusal behaviour 
-    textCorpus  <- tm_map(textCorpus, tolower)
+    textCorpus  <- tm_map(docCorpus, tolower)
 
     textCorpus <- tm_map(textCorpus,removePunctuation)
     textCorpus <- tm_map(textCorpus,removeNumbers)
-    
-    return(textCorpus)
-}
 
 
-dtm <- function(textCorpus){
 
 print("...creating Document-by-Term Matrix...")
 

@@ -1,6 +1,6 @@
 # Representative-Distinctiveness Feature Selection
 
-repDisComp <- function(S,noOfD,noOfC){   # imput is doc-comp matrix S, num of Dickens doc and Collins, assuming D. comes first
+repDisComp <- function(S,noOfD,noOfC){   # input is doc-comp matrix S, num of Dickens doc and Collins, assuming D. comes first
 
   prim.set <- S[1:noOfD, ]
   sec.set <- S[(noOfD+1):(noOfD+noOfC), ]
@@ -113,7 +113,7 @@ rep.feature[[i]] <- (2/ (abs(numOfP)^2 - abs(numOfP)))* sum(sum.values)
   dist.feature.2[i] <- frac.2* sum(sum.valuesDC)
 }
   
-} 
+ 
   
   print("Features done!")
   
@@ -124,30 +124,30 @@ rep.feature[[i]] <- (2/ (abs(numOfP)^2 - abs(numOfP)))* sum(sum.values)
   
   dist.all <- list()
   dist.all.2 <- list()
-  feature.1 <- as.matrix(rep(0, length(numOfComps)))
-  rownames(feature.1) <- c(1:numOfComps)
-  feature.2 <- as.matrix(rep(0, length(numOfComps)))
-  
+  feature.1 <- as.matrix(rep(0, numOfComps))
+  names(feature.1) <- c(1:numOfComps)
+  feature.2 <- as.matrix(rep(0, numOfComps))
+  names(feature.2) <- c(1:numOfComps)
   #-----Dickens set
   
   for (i in 1:numOfComps){
     
     dist.all[[i]] <- c(dist.values[[i]],rep.values[[i]],dist.values[[i]])
-    feature.1[i] <- abs(((dist.feature[[i]] - mean(dist.all[[i]]))/sd(dist.all[[i]])) - ((rep.feature[[i]]- mean(dist.all[[i]]))/sd(dist.all[[i]])))
+    feature.1[[i]] <- abs(((dist.feature[[i]] - mean(dist.all[[i]]))/sd(dist.all[[i]])) - ((rep.feature[[i]]- mean(dist.all[[i]]))/sd(dist.all[[i]])))
   }
   
-  feature.1 <- feature.1[feature.1 !="NaN"]
-  feature.1 <- feature.1[feature.1 !=0]
+  #feature.1 <- feature.1[feature.1 !="NaN"]
+  #feature.1 <- feature.1[feature.1 !=0]
   
   #--- same for Collins/other set
   for (i in 1:numOfComps){
     dist.all.2[[i]] <- c(dist.values[[i]],rep2.values[[i]],dist.values[[i]])
     
-    feature.2[i] <- abs(((dist.feature.2[[i]] - mean(dist.all.2[[i]]))/sd(dist.all.2[[i]])) - ((rep2.feature[[i]]- mean(dist.all.2[[i]]))/sd(dist.all.2[[i]])))
+    feature.2[[i]] <- abs(((dist.feature.2[[i]] - mean(dist.all.2[[i]]))/sd(dist.all.2[[i]])) - ((rep2.feature[[i]]- mean(dist.all.2[[i]]))/sd(dist.all.2[[i]])))
   }
   
-  feature.2 <- feature.2[feature.2 !="NaN"]
-  feature.2 <- feature.2[feature.2 !=0]
+  #feature.2 <- feature.2[feature.2 !="NaN"]
+  #feature.2 <- feature.2[feature.2 !=0]
   
   #------select highest no. of terms:  at the moment: everything above mean for set 
   

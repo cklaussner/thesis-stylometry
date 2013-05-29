@@ -2,6 +2,7 @@
 library(stats)
 library(cluster)
 library(fpc)
+
 # Functions more independent of application
 
 
@@ -33,7 +34,7 @@ featureConsistency <- function(feature.list){
   for (i in names(feature.list)){
     
     sum.feat <- c(sum.feat,length(feature.list[[i]]))
-    print(sum.feat)
+    
     results[i, 1] <- length(feature.list[[i]])
   }
   results["mean", 1] <- mean(sum.feat)
@@ -53,22 +54,16 @@ featureConsistency <- function(feature.list){
   consist[["intersect"]] <- intersect
 }
   consist[["results"]] <- results
+  return(consist)
    
 }
-
-
-
-
-
-
-
 
 
 # computes combination of various dissim. Matrices for a list of features 
 dissim.Matrix <- function(input,RD.features){
 
-  m <- as.matrix(log(input[,c(rownames(RD.features))]))
-  RD.matrix <- as.matrix((dist(m, method="manhattan", diag=TRUE, upper=TRUE))/length(RD.features))# account for no of features compared
+  m <- as.matrix(log(input[,RD.features]))
+  RD.matrix <- as.matrix((dist(m, method="manhattan", diag=TRUE, upper=TRUE)))# account for no of features compared
 
 return(RD.matrix)
 
@@ -197,10 +192,18 @@ distribute.RD <- function(dataset, noOfD, noOfO){
 #colnames(freq.list) <- c("D","nD")
 d.terms <- c()
 nd.terms <- c()
+d.terms2 <- c()
+nd.terms2 <- c()
+  
 for (l in colnames(prim.set)){
+  
+ # D <- mean(prim.set[,l])/sd(prim.set[,l])
+  #nD <- mean(sec.set[,l])/sd(sec.set[,l])
   
   D <- sum(prim.set[,l])/noOfD
   nD <- sum(sec.set[,l])/noOfO
+    
+    
   if (D > nD){
     #freq.list[l,1] <- sum(prim.set[,l])/noOfD
     d.terms <- c(d.terms,l)
