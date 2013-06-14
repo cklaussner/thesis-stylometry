@@ -1,4 +1,4 @@
-
+library(mclust)
 library(stats)
 library(cluster)
 library(fpc)
@@ -72,7 +72,7 @@ return(RD.matrix)
 # compute corrected Rand ind. for clustering based on dissim. matrix 
 
 
-getCorrRand <- function(dM, Metric, noOfD, noOfO){
+getAdjRand <- function(dM, Metric, noOfD, noOfO){
   
 clust <- agnes(dM, diss = TRUE, metric = Metric) # cluster according to dissim. 
 branches <- cutree(clust,2)  # get separation for two clusters
@@ -81,9 +81,9 @@ d <- c(rep(1,noOfD))
 nd <- c(rep(2,noOfO))
 c <- c(d,nd)
 
-corrected.Rand <- (cluster.stats(dM,branches,c))$corrected.rand
+adj.Rand <- adjustedRandIndex(branches, c)
 
-return(corrected.Rand)
+return(adj.Rand)
 }
 
 hist.diff <- function(test.set,RD.features){
@@ -102,9 +102,27 @@ abs.diff <- (sum(abs(hist.train - hist.test)))/length(RD.features) # calculate a
 return(abs.diff)
 }
 
+
+hist.diffC <- function(test.set,RD.features){
+  
+  termsize.train <- sum(RD.features)
+  hist.train <- RD.features/termsize.train
+  
+  # extract keywords from test set vector + histogram
+  test.vec <- as.matrix(test.set[rownames(RD.features),]) # retain only RD.features 
+  termsize.test <- sum(test.vec)
+  hist.test <- test.vec/termsize.test
+  
+  abs.diffC <-(hist.train - hist.test)/length(RD.features) # calculate absolute difference
+  
+  
+  return(abs.diffC)
+}
+
+
 # sum up results of cross-validation
 
-cv.results <- function(D.diff,O.diff,clust.eval,clust.eval.2){
+cv.results <- function(D.diff,O.diff,clust.eval){
   
 cv <- list()
   
@@ -118,7 +136,7 @@ if (dsize != 0){ # this is for testing on Dickens documents
 results <- matrix(0, nrow = (dsize+2),ncol=4)
 rownames(results) <- c(dickens.list,"mean","sum")
 
-colnames(results) <- c("Dist.D.","Dist.nD.","(Dist.nD-Dist.D)", "cor.Rand:Sim. Clust.")
+colnames(results) <- c("Dist.D.","Dist.nD.","(Dist.nD-Dist.D)", "adjust.Rand")
 d <- D.diff
 c <- O.diff
 
@@ -133,7 +151,7 @@ results[dsize+2,] <- c(sum(results[1:dsize,1]),sum(results[1:dsize,2]),sum(resul
 
 #t-test
 
-#D.T <- t.test(results[1:dsize,1],results[1:dsize,2],alternative="greater",var.equal=T)
+#D.T <- t.test(results[1:dsize,1],results[1:dsize,2],alternative="greater")
 
 #cv[["D-t"]] <- D.T
 cv[["Dickens"]] <- results
@@ -143,7 +161,7 @@ if (osize != 0){ # this is for testing on nonDickens documents  - other perspect
   
 results.2 <- matrix(0, nrow = (osize+2),ncol=4)
 rownames(results.2) <- c(nonDickens.list,"mean","sum")
-colnames(results.2) <- c("Dist.D.","Dist.nD.","(Dist.D-Dist.nD)","cor.Rand:Sim. Clust.")
+colnames(results.2) <- c("Dist.D.","Dist.nD.","(Dist.D-Dist.nD)","adjust.Rand")
 d <- D.diff
 c <- O.diff
 
@@ -152,32 +170,24 @@ for (n in other.list){
   results.2[n,1] <- d[[n]]
   results.2[n,2] <- c[[n]]
   results.2[n,3] <- d[[n]]-c[[n]]
-  results.2[n,4] <- clust.eval.2[[n]]
+  results.2[n,4] <- clust.eval[[n]]
 }
 results.2[osize+1,] <- c(mean(results.2[1:osize,1]),mean(results.2[1:osize,2]),mean(results.2[1:osize,3]),mean(results.2[1:osize,4]))
 results.2[osize+2,] <- c(sum(results.2[1:osize,1]),sum(results.2[1:osize,2]),sum(results.2[1:osize,3]),sum(results.2[1:osize,4]))
 
 
-nD.T <- t.test(results.2[1:osize,1],results.2[1:osize,2],alternative="greater",var.equal=T)
+#nD.T <- t.test(results.2[1:osize,1],results.2[1:osize,2],alternative="greater",var.equal=T)
 
 
 cv[["nonDickens"]] <- results.2
-cv[["nD-t"]] <-    nD.T
+#cv[["nD-t"]] <-    nD.T
 }
 
 return(cv)
 }
 
 
-
-
-
-
-
-
 # only for R. and D. output
-
-
 
 distribute.RD <- function(dataset, noOfD, noOfO){
   
@@ -187,35 +197,32 @@ distribute.RD <- function(dataset, noOfD, noOfO){
   
 # check frequencies of terms
 
-#freq.list <- matrix(0,nrow= length(colnames(dataset)), ncol=2)
-#rownames(freq.list) <- colnames(dataset)
-#colnames(freq.list) <- c("D","nD")
+freq.list <- matrix(0,nrow= length(colnames(dataset)), ncol=2)
+rownames(freq.list) <- colnames(dataset)
+colnames(freq.list) <- c("D","nD")
 d.terms <- c()
 nd.terms <- c()
-d.terms2 <- c()
-nd.terms2 <- c()
-  
+ 
 for (l in colnames(prim.set)){
   
- # D <- mean(prim.set[,l])/sd(prim.set[,l])
-  #nD <- mean(sec.set[,l])/sd(sec.set[,l])
+  D <- sum(prim.set[,l])/sum(prim.set)
+ nD <- sum(sec.set[,l])/sum(sec.set)
   
-  D <- sum(prim.set[,l])/noOfD
-  nD <- sum(sec.set[,l])/noOfO
-    
+  freq.list[l,1] <- D
+  freq.list[l,2] <- nD
     
   if (D > nD){
-    #freq.list[l,1] <- sum(prim.set[,l])/noOfD
+
     d.terms <- c(d.terms,l)
   }else{
-    #freq.list[l,2] <- sum(sec.set[,l])/noOfO
     nd.terms <- c(nd.terms,l)
   }
 }
-
+  
   term.lists[["D"]] <- d.terms
   term.lists[["nD"]] <- nd.terms
-
+  term.lists[["freq.list"]] <- as.matrix(freq.list[order(freq.list[,1],decreasing = TRUE ),])
+  
   return(term.lists)
 }
 

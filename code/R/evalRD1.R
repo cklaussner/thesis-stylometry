@@ -15,7 +15,11 @@ evalRD1 <- function(dataset,noOfD,noOfO, noInputFeat, alpha){
   num.Terms <- dsize[2]
   
   D.diff <- list() # initialise output lists
+  D2.diff <- list() 
+  D3.diff <- list() 
   O.diff <- list()
+  O2.diff <- list()
+  O3.diff <- list()
   sim <- list()
   
   D.feat <- list()
@@ -24,13 +28,16 @@ evalRD1 <- function(dataset,noOfD,noOfO, noInputFeat, alpha){
   O.feat.p <- list()
   clust.eval <- list()
   cross.val <- list()
-  
+  hist <- list()
+  hist2 <- list()
+  hist3 <- list()
   dataset <- as.matrix(check.data(dataset,noOfD,noOfO)) # check that Dickens is first in set
+  
   term.dist <- distribute.RD(dataset, noOfD, noOfO) # check freq. dist. of terms for both sets
   d.terms <- term.dist$D
   nd.terms <- term.dist$nD 
   
-for (i in 1:20){
+for (i in 48:60){
   
   print(i)  # current interation
   
@@ -52,15 +59,16 @@ for (i in 1:20){
   
   diff <- repDis(train.set,num.of.D,num.of.nD,noInputFeat, alpha)  # do R. and D. selection for curr. training set 
   
+  
   RD.old  <- diff$features.1 # get Dickens features and reduce 
-  D.feat.p[[test.doc]] <- RD.old   # save the orinal set
+  D.feat.p[[test.doc]] <- as.matrix(RD.old[order(RD.old[,1],decreasing = TRUE ),]) # save the orinal set
   rd1 <- intersect(rownames(RD.old),d.terms)
   RD.features <- as.matrix(RD.old[rd1,])
   RD.features <- as.matrix(RD.features[order(RD.features[,1],decreasing = TRUE ),])
   D.feat[[test.doc]] <- RD.features
   
   RD2.old <-diff$features.2 # get other features
-  O.feat.p[[test.doc]] <- RD2.old  # save the orinal set
+  O.feat.p[[test.doc]] <- as.matrix(RD2.old[order(RD2.old[,1],decreasing = TRUE ),])  # save the orinal set
   rd2 <- intersect(rownames(RD2.old),nd.terms)
   RD.features.2 <- as.matrix(RD2.old[rd2,])
   RD.features.2 <- as.matrix(RD.features.2[order(RD.features.2[,1],decreasing = TRUE ),])
@@ -72,29 +80,40 @@ for (i in 1:20){
   
   
   D.diff[[test.doc]] <- hist.diff(test.set,RD.features)
-  
+  hist[[test.doc]]  <-hist.diffC(test.set,RD.features)  # intersection most frequent + normal list each
   
   # calculate histogram diff. for RD features: Collins/other set
    O.diff[[test.doc]] <- hist.diff(test.set,RD.features.2)
-
+   hist2[[test.doc]]  <-hist.diffC(test.set,RD.features.2)
   
    inter.feat <- intersect(rownames(RD.old), rownames(RD2.old)) # get features in both sets
    sim.DO <- dissim.Matrix(dataset,inter.feat) # calculate similarity matrix based on RD.features: Dickens
-   cr <- getCorrRand(sim.DO, "complete", noOfD, noOfO) # try with some other metric?
+   cr <- getAdjRand(sim.DO, "complete", noOfD, noOfO) # try with some other metric?
    sim[[test.doc]]<- sim.DO
    clust.eval[[test.doc]] <- cr
    
-}
+  d  <- as.matrix(RD.old[intersect(inter.feat,d.terms),])   # rep features + frequent features each
+  nd  <- as.matrix(RD.old[intersect(inter.feat,nd.terms),])
+  D2.diff[[test.doc]] <- hist.diff(test.set,d)
+  O2.diff[[test.doc]] <- hist.diff(test.set,nd)
+  
+  
+  D3.diff[[test.doc]] <- hist.diff(test.set,as.matrix(RD.old))
+  O3.diff[[test.doc]] <- hist.diff(test.set,as.matrix(RD2.old)) #original feat
+  }
   
  #----------- sum up results of cross-validation
   
-hist.results <- cv.results(D.diff,O.diff,clust.eval,clust.eval.2)
-  
+  hist.results <- cv.results(D.diff,O.diff,clust.eval)
+  hist2.results <- cv.results(D2.diff,O2.diff,clust.eval)
+  hist3.results <- cv.results(D3.diff,O3.diff,clust.eval)
   featConsist <- featureConsistency(D.feat)
   featConsist.2 <- featureConsistency(O.feat)
   
   
 cross.val[["hist.res"]] <- hist.results
+cross.val[["hist2.res"]] <- hist2.results
+cross.val[["hist3.res"]] <- hist3.results
 cross.val[["sim"]] <- sim
 cross.val[["feat"]] <- inter.feat
 cross.val[["D.feat"]] <- D.feat
@@ -103,8 +122,9 @@ cross.val[["D.feat.O"]] <- D.feat.p
 cross.val[["O.feat.O"]] <- O.feat.p
 cross.val[["D.consist"]] <- featConsist
 cross.val[["O.consist"]] <- featConsist.2
-  
-  
+cross.val[["hist"]] <- hist
+cross.val[["hist2"]] <- hist2
+
 return(cross.val)
   
 }

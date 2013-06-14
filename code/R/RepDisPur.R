@@ -46,7 +46,10 @@ repDis <- function(matrixIn,noOfD,noOfC,noOfFeat, alpha){
        }
     }
     rep.values[[t]] <- sum.values
-    rep.feature[t] <- (2/ (abs(numOfP)^2 - abs(numOfP)))* sum(sum.values)
+    rep.feature[t] <- (2/ ((numOfP)^2 - numOfP))* sum(sum.values)
+   
+  
+    
     
     # secondary set
     sum.valuesC <- c()
@@ -98,7 +101,7 @@ repDis <- function(matrixIn,noOfD,noOfC,noOfFeat, alpha){
    
     
       frac <- 1/ ((numOfP)* ((numOfS+numOfP) - numOfP))
-      frac.2 <- 1/ ((numOfS)* ((numOfP+numOfS) - abs(numOfS)))
+      frac.2 <- 1/ ((numOfS)* ((numOfP+numOfS) - (numOfS)))
    
     
     
