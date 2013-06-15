@@ -1,6 +1,6 @@
 
 # ICA functions
-
+library(psych)
 
 # select positive/negative terms for each component based on individual threshold
 
@@ -13,8 +13,8 @@ compLst <- list()
   
 
 term.thres <- as.matrix(colMeans(abs(A)))
-#term.thres.SD <- as.matrix(SD(abs(A)))   # compute std for each term 
-#term.thres <- term.thres + term.thres.SD # add to threshold, so if values fluctuate more, this is reflected 
+term.thres.SD <- as.matrix(SD(abs(A)))   # compute std for each term 
+term.thres <- term.thres + term.thres.SD # add to threshold, so if values fluctuate more, this is reflected 
 
 
 for(i in 1:numOfIC){   # select keywords in components according to weight
@@ -35,12 +35,12 @@ return(compLst)
 
 
 # simple unsupervised: component for document selection based on individual component thresholds
-getDisComp1 <- function(S, input){
+getDisCompThres <- function(S){
   
   numOfDocs <- (dim(S))[1] 
   numOfIC <- (dim(S))[2] 
-  rownames(S) <- rownames(input)  # do doc names
-  colnames(S) <- c(1:numOfIC) # do comp names
+  #rownames(S) <- rownames(input)  # do doc names
+  #colnames(S) <- c(1:numOfIC) # do comp names
   comp.thres <- as.matrix(colMeans(abs(S)))
   comp.thres.SD <- as.matrix(SD(abs(S)))
   comp.thres <- as.matrix(comp.thres+comp.thres.SD) # have higher threshold for components 
@@ -48,7 +48,7 @@ getDisComp1 <- function(S, input){
  
   for(i in rownames(S)){
     
-    tmp <- as.matrix(S[i, ]) #get all term weights for one component 
+    tmp <- as.matrix(S[i, ]) #get all comp weights for one doc
     
     names(tmp) <- rownames(tmp)
     
@@ -65,29 +65,53 @@ return(compLst)
 
 ########### get component weights for each document based on preselection of components for each group separately- practically this is not doing much
 
-getDisComp2 <- function(S,noOfD,noOfO,compList){
+getDisCompComb <- function(S,compList){
   
-  
-  prim.set <- S[1:noOfD, ]
-  #prim.set <- prim.set[,compForD] # reduce set
-  sec.set <- S[(noOfD+1):(noOfD+noOfO), ]
-  #sec.set <- sec.set[,compFornD]
   docLst <- list()
 
-for (n in rownames(prim.set)){ # for Dickens
+for (n in rownames(S)){ # for Dickens & nonDickens
   
   retain.comp <- compList[[n]]
-  docLst[[n]]  <- as.matrix(prim.set[n,c(retain.comp)])    # save all retained comp in document matrix
+  docLst[[n]]  <- as.matrix(S[n,c(retain.comp)])    # save all retained comp in document matrix
 }
  
-for (n in rownames(sec.set)){ # for nonDickens
-  retain.comp.2 <- compList[[n]]
-    docLst[[n]]  <- as.matrix(sec.set[n,c(retain.comp.2)])    # save all retained comp in document matrix
-}
+
   
 return(docLst)
   
+  
+  
 }
+
+getDisCompRD <- function(S,noOfD,noOfO,compForD,compFornD){
+  
+  
+  prim.set <- S[1:noOfD, ]
+  prim.set <- prim.set[,compForD] # reduce set
+  sec.set <- S[(noOfD+1):(noOfD+noOfO), ]
+  sec.set <- sec.set[,compFornD]
+  docLst <- list()
+  
+  for (n in rownames(prim.set)){ # for Dickens
+    
+    docLst[[n]]  <- as.matrix(prim.set[n,])    # save all retained comp in document matrix
+  }
+  
+  for (n in rownames(sec.set)){ # for nonDickens
+    
+    docLst[[n]]  <- as.matrix(sec.set[n,])    # save all retained comp in document matrix
+  }
+  
+  return(docLst)
+  
+}
+
+
+
+
+
+
+
 
 
 #### combine term-component weight and component - document weight into term-component weight
@@ -128,17 +152,17 @@ return(docTopics)
 # choose author terms - average of term over all of authors documents
 
 
-getProfile <- function(docTopics){
-  
+getProfile <- function(docTopics, alpha){
+
   D.termlist <- list()
-  C.termlist <- list()
+  nD.termlist <- list()
   
   dickens.list <- names(docTopics)[substr((names(docTopics)),1,1) == "D"] # get Dickens elements tested 
   nonDickens.list <- names(docTopics)[substr((names(docTopics)),1,1) != "D"] # get nonDickens elements tested 
   
   for (n in dickens.list){
     #Dickens profile
-    print(n)
+    
     for (t in rownames(docTopics[[n]])){
       
       if (t %in% names(D.termlist)){
@@ -158,19 +182,42 @@ getProfile <- function(docTopics){
   for (t in names(D.termlist)){
     D.profile[t,] <- mean(D.termlist[[t]])
   }
+  names(D.profile)<- rownames(D.profile)
+  
+  D.profile <- D.profile[abs(D.profile)> (mean(abs(D.profile))*alpha)]
  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
+  ###################beginning of nonDickens profile selection
+  for (n in nonDickens.list){
+    #nonDickens profile
+    
+    for (t in rownames(docTopics[[n]])){
+      
+      if (t %in% names(nD.termlist)){
+        nD.termlist[[t]] <- c(nD.termlist[[t]], docTopics[[n]][t,])
+        
+      }else{
+        
+        nD.termlist[[t]] <- docTopics[[n]][t,]
+        
+      }
+    }
+    
   }
+  
+  nD.profile <- as.matrix(rep(0,length(nD.termlist)))
+  rownames(nD.profile)<- names(nD.termlist)                      
+  for (t in names(nD.termlist)){
+    nD.profile[t,] <- mean(nD.termlist[[t]])
+  }
+  names(nD.profile)<- rownames(nD.profile)
+  
+  nD.profile <- nD.profile[abs(nD.profile)> (mean(abs(nD.profile))*alpha)]
+
+ profiles <- list()
+ profiles[["D"]] <- D.profile
+profiles[["nD"]] <- nD.profile
+return(profiles)
+}
 
 
 
