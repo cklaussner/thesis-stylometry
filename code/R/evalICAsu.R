@@ -70,10 +70,10 @@ evalICAsu <- function(dataset,noOfD,noOfnD){
     comp.List <- getDisTerm(A,dataset) # retrieve terms for each component
     
     alpha <- 1.1
-    dis.Comp <- repDisComp(train.set,noOfD,noOfnD,alpha) # get discriminative components based on Repres.-Distinc. selection
+    dis.Comp <- repDisComp(train.set,noOfD2,noOfnD2,alpha) # get discriminative components based on Repres.-Distinc. selection
     
     
-    docLst <- getDisCompRD(train.set,noOfD2,noOfnD2,dis.Comp$features.1,dis.Comp$features.2) # simple retrieval of comp-doc weights for discriminatory components 
+    docLst <- getDisCompRD(train.set,noOfD2,noOfnD2,rownames(dis.Comp$features.1),rownames(dis.Comp$features.2)) # simple retrieval of comp-doc weights for discriminatory components 
     docLst[[test.doc]] <- test.set
     
     docTopics <- combineWeights(dataset,comp.List,docLst) # term-in-document weight combination
@@ -88,10 +88,10 @@ evalICAsu <- function(dataset,noOfD,noOfnD){
     
     # test histogram differences
     D.diff[[test.doc]] <- hist.diff(test.terms,D.profile)
-    D.feat[[test.doc]] <- D.profile
+    D.feat[[test.doc]] <- as.matrix(D.profile[order(D.profile[,1],decreasing = TRUE ),])
     
     O.diff[[test.doc]] <- hist.diff(test.terms,nD.profile)
-    O.feat[[test.doc]] <- nD.profile
+    O.feat[[test.doc]] <- as.matrix(nD.profile[order(nD.profile[,1],decreasing = TRUE ),])
     
     inter.features <- intersect(rownames(D.profile),rownames(nD.profile))
     inter.feat[[test.doc]] <- inter.features

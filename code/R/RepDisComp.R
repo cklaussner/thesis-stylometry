@@ -1,6 +1,6 @@
 # Representative-Distinctiveness Feature Selection
 
-repDisComp <- function(S,noOfD,noOfC){   # input is doc-comp matrix S, num of Dickens doc and Collins, assuming D. comes first
+repDisComp <- function(S,noOfD,noOfC,alpha){   # input is doc-comp matrix S, num of Dickens doc and Collins, assuming D. comes first
 
   prim.set <- S[1:noOfD, ]
   sec.set <- S[(noOfD+1):(noOfD+noOfC), ]
@@ -27,7 +27,7 @@ repDisComp <- function(S,noOfD,noOfC){   # input is doc-comp matrix S, num of Di
   
 for (i in 1:numOfComps){
   sum.values <- c()
-  print(i)
+  
   
   
 #primary set
@@ -104,13 +104,12 @@ rep.feature[[i]] <- (2/ (abs(numOfP)^2 - abs(numOfP)))* sum(sum.values)
   
   
   frac <- 1/ ((numOfP)* ((numOfS+numOfP) - numOfP))
-  frac.2 <- 1/ ((numOfS)* ((numOfP+numOfS) - abs(numOfS)))
-  
+ 
   
   
   dist.feature[i] <- frac* sum(sum.valuesDC)
   
-  dist.feature.2[i] <- frac.2* sum(sum.valuesDC)
+  dist.feature.2[i] <- frac* sum(sum.valuesDC)
 }
   
  

@@ -1,4 +1,4 @@
-#ICA unsupervised --version 15 June
+#ICA unsupervised -reversed input --version 16 June
 library(fastICA)
 source("ICAfunctions.R")
 source("functions.R")
@@ -15,7 +15,7 @@ evalICAu <- function(dataset,noOfD,noOfnD){
   numOfIC <-(dim(dataset))[1]-1
   
   # run ICA only once, since it's unsupervised this is ok!
-  Y<- fastICA(dataset, numOfIC, alg.typ = "deflation",
+  Y<- fastICA(t(dataset), numOfIC, alg.typ = "deflation",
               fun = "exp", alpha = 1.0, method = "R",
               row.norm = TRUE, maxit = 200, tol = 1e-04, verbose = TRUE,
               w.init = NULL)
@@ -24,13 +24,14 @@ evalICAu <- function(dataset,noOfD,noOfnD){
   S <- Y$S 
   A <- Y$A
   
-  numOfComp <- (dim(A))[1] 
-  numOfTerms <- (dim(A))[2] 
-  numOfDocs <- (dim(S))[1] 
+  numOfDocs <- (dim(A))[2] 
+  numOfComps <- (dim(A))[1] 
+  numOfTerms <- (dim(S))[1] 
   
   colnames(S) <- paste(1:numOfIC)
+  rownames(S) <- colnames(dataset)
   rownames(A) <- paste(1:numOfIC)
-  
+  colnames(A) <- rownames(dataset)
   #for saving profile-unseen hist. diff 
   D.diff <- list()
   O.diff <- list()
@@ -45,18 +46,18 @@ evalICAu <- function(dataset,noOfD,noOfnD){
   
   for(i in 1:numOfDocs){
     
-    test.set <- as.matrix(S[i,]) # extract doc for test
-    test.doc <- rownames(S)[i]
-    train.set <- S[!rownames(S) %in% test.doc, ] # create new matrix with document left out
+    test.set <- as.matrix(A[,i]) # extract doc for test
+    test.doc <- colnames(A)[i]
+    train.set <- A[,!colnames(A) %in% test.doc ] # create new matrix with document left out
     
     print(test.doc)
     # calculate author profile for train.set
     
-    comp.List <- getDisTerm(A,dataset) # retrieve terms for each component
+    comp.List <- getDisTerm(t(S),dataset) # retrieve terms for each component
     
-    dis.Comp <- getDisCompThres(train.set) # get discriminative components based on threshold
+    dis.Comp <- getDisCompThres(t(train.set)) # get discriminative components based on threshold
     
-    docLst <- getDisCompComb(train.set,dis.Comp) # simple retrieval of comp-doc weights for discriminatory components 
+    docLst <- getDisCompComb(t(train.set),dis.Comp) # simple retrieval of comp-doc weights for discriminatory components 
     docLst[[test.doc]] <- test.set
     
     docTopics <- combineWeights(dataset,comp.List,docLst) # term-in-document weight combination
@@ -73,7 +74,6 @@ evalICAu <- function(dataset,noOfD,noOfnD){
     D.diff[[test.doc]] <- hist.diff(test.terms,D.profile)
     D.feat[[test.doc]] <- as.matrix(D.profile[order(D.profile[,1],decreasing = TRUE ),])
     
-    
     O.diff[[test.doc]] <- hist.diff(test.terms,nD.profile)
     O.feat[[test.doc]] <- as.matrix(nD.profile[order(nD.profile[,1],decreasing = TRUE ),])
     
@@ -85,36 +85,35 @@ evalICAu <- function(dataset,noOfD,noOfnD){
     clust.eval[[test.doc]] <- cr
     
   }
-    
-      hist.results <- cv.results(D.diff,O.diff,clust.eval)
-      featConsist <- featureConsistency(D.feat)
-      featConsist.2 <- featureConsistency(O.feat)
-      
-    
-      cross.val <- list()
-    
-      cross.val[["hist.res"]] <- hist.results
-      cross.val[["sim"]] <- sim
-      cross.val[["feat"]] <- inter.feat
-      cross.val[["D.feat"]] <- D.feat
-      cross.val[["O.feat"]] <- O.feat
-      cross.val[["D.consist"]] <- featConsist
-      cross.val[["O.consist"]] <- featConsist.2
-   
-      
-      return(cross.val)
-    
-  }
+  
+  hist.results <- cv.results(D.diff,O.diff,clust.eval)
+  featConsist <- featureConsistency(D.feat)
+  featConsist.2 <- featureConsistency(O.feat)
   
   
+  cross.val <- list()
+  
+  cross.val[["hist.res"]] <- hist.results
+  cross.val[["sim"]] <- sim
+  cross.val[["feat"]] <- inter.feat
+  cross.val[["D.feat"]] <- D.feat
+  cross.val[["O.feat"]] <- O.feat
+  cross.val[["D.consist"]] <- featConsist
+  cross.val[["O.consist"]] <- featConsist.2
+  
+  
+  return(cross.val)
+  
+}
 
-  
 
-  
-  
-  
-  
-  
-  
-  
+
+
+
+
+
+
+
+
+
 
