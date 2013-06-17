@@ -35,9 +35,9 @@ evalRD1 <- function(dataset,noOfD,noOfO, noInputFeat, alpha){
   
   term.dist <- distribute.RD(dataset, noOfD, noOfO) # check freq. dist. of terms for both sets
   d.terms <- term.dist$D
-  nd.terms <- term.dist$nD 
+  nd.terms <- term.dist$nD
   
-for (i in 48:60){
+for (i in 1:1){
   
   print(i)  # current interation
   
@@ -97,16 +97,17 @@ for (i in 48:60){
   D2.diff[[test.doc]] <- hist.diff(test.set,d)
   O2.diff[[test.doc]] <- hist.diff(test.set,nd)
   
+  D3.diff[[test.doc]] <- hist.diff(test.set,RD.old)
+  O3.diff[[test.doc]] <- hist.diff(test.set,RD2.old)
   
-  D3.diff[[test.doc]] <- hist.diff(test.set,as.matrix(RD.old))
-  O3.diff[[test.doc]] <- hist.diff(test.set,as.matrix(RD2.old)) #original feat
-  }
+ }
   
  #----------- sum up results of cross-validation
   
   hist.results <- cv.results(D.diff,O.diff,clust.eval)
   hist2.results <- cv.results(D2.diff,O2.diff,clust.eval)
   hist3.results <- cv.results(D3.diff,O3.diff,clust.eval)
+  
   featConsist <- featureConsistency(D.feat)
   featConsist.2 <- featureConsistency(O.feat)
   

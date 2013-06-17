@@ -43,7 +43,7 @@ evalICAu <- function(dataset,noOfD,noOfnD){
   O.feat <- list()
   inter.feat <- list()
   
-  for(i in 1:numOfDocs){
+  for(i in 1:10){
     
     test.set <- as.matrix(S[i,]) # extract doc for test
     test.doc <- rownames(S)[i]

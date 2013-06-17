@@ -13,8 +13,8 @@ compLst <- list()
   
 
 term.thres <- as.matrix(colMeans(abs(A)))
-term.thres.SD <- as.matrix(SD(abs(A)))   # compute std for each term 
-term.thres <- term.thres + term.thres.SD # add to threshold, so if values fluctuate more, this is reflected 
+#term.thres.SD <- as.matrix(SD(abs(A)))   # compute std for each term 
+#term.thres <- term.thres + term.thres.SD # add to threshold, so if values fluctuate more, this is reflected 
 
 
 for(i in 1:numOfIC){   # select keywords in components according to weight
@@ -22,9 +22,15 @@ for(i in 1:numOfIC){   # select keywords in components according to weight
   tmp <- as.matrix(A[i, ]) #get all term weights for one component 
   names(tmp) <- rownames(tmp)
   
-  terms.pos <- as.matrix(tmp[tmp> term.thres]) # only retain terms above term threshold
+  #terms.pos <- as.matrix(tmp[tmp> term.thres]) # only retain terms above term threshold
   
-  terms.neg <- as.matrix(tmp[tmp < (-term.thres)]) # only retain terms below - term threshold - so high negative association
+  #terms.neg <- as.matrix(tmp[tmp < (-term.thres)]) # only retain terms below - term threshold - so high negative association
+  
+  terms.pos <- as.matrix(tmp) # only retain terms above term threshold
+  
+  terms.neg <- as.matrix(tmp) # only retain terms below - term threshold - so high negative association
+  
+  
   
   compLst[[i]] <-  rbind(terms.pos,terms.neg)     # add to overall comp list
 
@@ -42,8 +48,8 @@ getDisCompThres <- function(S){
   #rownames(S) <- rownames(input)  # do doc names
   #colnames(S) <- c(1:numOfIC) # do comp names
   comp.thres <- as.matrix(colMeans(abs(S)))
-  comp.thres.SD <- as.matrix(SD(abs(S)))
-  comp.thres <- as.matrix(comp.thres+comp.thres.SD) # have higher threshold for components 
+  #comp.thres.SD <- as.matrix(SD(abs(S)))
+  #comp.thres <- as.matrix(comp.thres+comp.thres.SD) # have higher threshold for components 
   compLst <- list()
  
   for(i in rownames(S)){
@@ -55,6 +61,9 @@ getDisCompThres <- function(S){
     comp.pos <- rownames(as.matrix(tmp[tmp> comp.thres])) # only retain terms above term threshold
     
     comp.neg <- rownames(as.matrix(tmp[tmp < (-comp.thres)])) # only retain terms below - term threshold - so high negative association
+    
+    #comp.pos <- rownames(as.matrix(tmp))
+    #comp.neg <- rownames(as.matrix(tmp))
     
     compLst[[i]] <-  c(comp.pos,comp.neg)     # add to overall comp list
     

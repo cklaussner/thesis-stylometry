@@ -36,9 +36,10 @@ featureConsistency <- function(feature.list){
     sum.feat <- c(sum.feat,length(feature.list[[i]]))
     
     results[i, 1] <- length(feature.list[[i]])
+     
   }
-  results["mean", 1] <- mean(sum.feat)
-  results["std.", 1] <- sd(sum.feat)
+ results["mean", 1] <- round(mean(sum.feat))
+results["std.", 1] <- round(sd(sum.feat))
   
   if (length(feature.list)>1){
   intersect <- rownames(feature.list[[1]]) 
@@ -49,8 +50,8 @@ featureConsistency <- function(feature.list){
     results[i, 2] <- length(intersect)
     sum.int <- c(sum.int,length(intersect))
   }
-  results["mean", 2] <- mean(sum.int)
-  results["std.", 2] <- sd(sum.int)
+  results["mean", 2] <- round(mean(sum.int))
+  results["std.", 2] <- round(sd(sum.int))
   consist[["intersect"]] <- intersect
 }
   consist[["results"]] <- results
@@ -88,12 +89,12 @@ return(adj.Rand)
 
 hist.diff <- function(test.set,RD.features){
 
-termsize.train <- sum(RD.features)
+termsize.train <- sum(abs(RD.features))
 hist.train <- RD.features/termsize.train
 
 # extract keywords from test set vector + histogram
 test.vec <- as.matrix(test.set[rownames(RD.features),]) # retain only RD.features 
-termsize.test <- sum(test.vec)
+termsize.test <- sum(abs(test.vec))
 hist.test <- test.vec/termsize.test
 
 abs.diff <- (sum(abs(hist.train - hist.test)))/length(RD.features) # calculate absolute difference
@@ -105,15 +106,15 @@ return(abs.diff)
 
 hist.diffC <- function(test.set,RD.features){
   
-  termsize.train <- sum(RD.features)
+  termsize.train <- sum(abs(RD.features))
   hist.train <- RD.features/termsize.train
   
   # extract keywords from test set vector + histogram
   test.vec <- as.matrix(test.set[rownames(RD.features),]) # retain only RD.features 
-  termsize.test <- sum(test.vec)
+  termsize.test <- sum(abs(test.vec))
   hist.test <- test.vec/termsize.test
   
-  abs.diffC <-(hist.train - hist.test)/length(RD.features) # calculate absolute difference
+  abs.diffC <-(abs(hist.train - hist.test))/length(RD.features) # calculate absolute difference
   
   
   return(abs.diffC)
@@ -165,7 +166,7 @@ colnames(results.2) <- c("Dist.D.","Dist.nD.","(Dist.D-Dist.nD)","adjust.Rand")
 d <- D.diff
 c <- O.diff
 
-for (n in other.list){
+for (n in nonDickens.list){
   
   results.2[n,1] <- d[[n]]
   results.2[n,2] <- c[[n]]
@@ -185,6 +186,51 @@ cv[["nonDickens"]] <- results.2
 
 return(cv)
 }
+
+
+########second version for combined results
+cv.results.2 <- function(D.diff,O.diff,clust.eval){
+  
+  
+    eval.len <- length(D.diff)
+    results <- matrix(0, nrow = eval.len+2,ncol=4)
+    rownames(results) <- c(names(D.diff),"mean","sum")
+    
+    colnames(results) <- c("Dist.D.","Dist.nD.","(Dist.nD-Dist.D)", "adjust.Rand")
+    d <- D.diff
+    c <- O.diff
+    
+    for (n in names(D.diff)){
+      results[n,1] <- d[[n]]
+      results[n,2] <- c[[n]]
+      results[n,3] <- c[[n]]-d[[n]]
+      results[n,4] <- clust.eval[[n]] # note corrected Rand result
+    }
+    results[eval.len+1,] <- c(mean(results[1:eval.len,1]),mean(results[1:eval.len,2]),mean(results[1:eval.len,3]),mean(results[1:eval.len,4]) )
+    results[eval.len+2,] <- c(sum(results[1:eval.len,1]),sum(results[1:eval.len,2]),sum(results[1:eval.len,3]),sum(results[1:eval.len,4]))
+    
+    #t-test
+    
+    #D.T <- t.test(c,d,alternative="greater")
+    
+    #cv[["D-t"]] <- D.T
+    
+    
+  
+  
+  return(results)
+}
+
+
+
+
+
+
+
+
+
+
+
 
 
 # only for R. and D. output
