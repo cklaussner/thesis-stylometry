@@ -7,7 +7,7 @@ source("functions.R")
 
 #source("evalRD15.R")
 
-#diff <- evalRD15(nV,55,31,20, 1.1)
+#diff <- evalRD15(nV,55,31,50, 1.1)
 
 
 evalRD15 <- function(dataset,noOfD,noOfO, noInputFeat, alpha){
@@ -19,10 +19,10 @@ evalRD15 <- function(dataset,noOfD,noOfO, noInputFeat, alpha){
   
   D.diff <- list() # initialise output lists
   D2.diff <- list() 
-  D3.diff <- list() 
+  
   O.diff <- list()
   O2.diff <- list()
-  O3.diff <- list()
+
   sim <- list()
   iter.list <- list()
   
@@ -115,14 +115,14 @@ evalRD15 <- function(dataset,noOfD,noOfO, noInputFeat, alpha){
   
   #----------- sum up results of cross-validation
   
-  hist.results <- cv.results.2(D.diff,O.diff,clust.eval)
+  hist.results <- cv.results.3(D.diff,O.diff,clust.eval, hist, hist2)
   
-  featConsist <- featureConsistency(D.feat)
-  featConsist.2 <- featureConsistency(O.feat)
+  featConsist <- featureConsistency.2(D.feat)
+  featConsist.2 <- featureConsistency.2(O.feat)
   
   
   cross.val[["hist.res"]] <- hist.results
-
+  cross.val[["cv"]] <- clust.eval
   cross.val[["sim"]] <- sim
   cross.val[["feat"]] <- inter.feat
   cross.val[["D.feat"]] <- D.feat
