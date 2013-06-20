@@ -15,7 +15,7 @@ if ((substr(rownames(dataset)[1],1,1) == "D")){
 }else{
   print("Comparison set is first")
   sec.set <- dataset[1:noOfO, ]
-  prim.set <- dataset[(noOfO+1):(noOfD+noOf0), ]
+  prim.set <- dataset[(noOfO+1):(noOfD+noOfO), ]
 }
 
 return(rbind(prim.set, sec.set)) # have dataset in right order: Dickens-nonDickens
@@ -103,7 +103,7 @@ featureConsistency.2 <- function(feature.list){
 # computes combination of various dissim. Matrices for a list of features 
 dissim.Matrix <- function(input,RD.features){
 
-  m <- as.matrix(log(input[,RD.features]))
+  m <- as.matrix(input[,RD.features])
   RD.matrix <- as.matrix((dist(m, method="manhattan", diag=TRUE, upper=TRUE)))# account for no of features compared
 
 return(RD.matrix)
@@ -190,7 +190,11 @@ for (n in dickens.list){
   results[n,1] <- d[[n]]
   results[n,2] <- c[[n]]
   results[n,3] <- c[[n]]-d[[n]]
-  results[n,4] <- clust.eval[[n]] # note corrected Rand result
+  for (nt in names(clust.eval)){
+    if (nt %in% dickens.list){
+      results[nt,4] <- clust.eval[[nt]] # note corrected Rand result for iteration always marked on first document
+    }}
+  
 }
 results[dsize+1,1:4] <- c(mean(results[1:dsize,1]),mean(results[1:dsize,2]),mean(results[1:dsize,3]),mean(results[1:dsize,4]) )
 results[dsize+2,1:4] <- c(sum(results[1:dsize,1]),sum(results[1:dsize,2]),sum(results[1:dsize,3]),sum(results[1:dsize,4]))
@@ -219,7 +223,11 @@ for (n in nonDickens.list){
   results.2[n,1] <- d[[n]]
   results.2[n,2] <- c[[n]]
   results.2[n,3] <- d[[n]]-c[[n]]
-  results.2[n,4] <- clust.eval[[n]]
+  for (nt in names(clust.eval)){
+    if (nt %in% nonDickens.list){
+      results[nt,4] <- clust.eval[[nt]] # note corrected Rand result for iteration always marked on first document
+    }}
+  
 }
 results.2[osize+1,1:4] <- c(mean(results.2[1:osize,1]),mean(results.2[1:osize,2]),mean(results.2[1:osize,3]),mean(results.2[1:osize,4]))
 results.2[osize+2,1:4] <- c(sum(results.2[1:osize,1]),sum(results.2[1:osize,2]),sum(results.2[1:osize,3]),sum(results.2[1:osize,4]))
@@ -229,53 +237,13 @@ results.2[osize+2,1:4] <- c(sum(results.2[1:osize,1]),sum(results.2[1:osize,2]),
 
 
 cv[["nonDickens"]] <- results.2
-#cv[["nD-t"]] <-    nD.T
+
 }
 
 return(cv)
 }
 
 
-########second version for combined results
-cv.results.2 <- function(D.diff,O.diff,clust.eval, hist,hist2){
-  
-  
-    eval.len <- length(D.diff)
-    results <- matrix(0, nrow = eval.len+3,ncol=5)
-    rownames(results) <- c(names(D.diff),"mean","sum")
-    
-    colnames(results) <- c("Dist.D.","Dist.nD.","(Dist.nD-Dist.D)", "adjust.Rand")
-    d <- D.diff
-    c <- O.diff
-    
-    for (n in names(D.diff)){
-      
-      results[n,1] <- d[[n]]
-      results[n,2] <- c[[n]]
-      results[n,3] <- c[[n]]-d[[n]]
-      
-      results[n,5]<- 
-      
-      for (nt in names(clust.eval)){
-      results[n,4] <- clust.eval[[n]] # note corrected Rand result
-    }
-    results[eval.len+1,] <- c(mean(results[1:eval.len,1]),mean(results[1:eval.len,2]),mean(results[1:eval.len,3]),mean(results[1:eval.len,4]) )
-    results[eval.len+2,] <- c(sum(results[1:eval.len,1]),sum(results[1:eval.len,2]),sum(results[1:eval.len,3]),sum(results[1:eval.len,4]))
-    
-    }
-    
-    
-    #t-test
-    
-    #D.T <- t.test(c,d,alternative="greater")
-    
-    #cv[["D-t"]] <- D.T
-    
-    
-  
-  
-  return(results)
-}
 
 
 cv.results.3 <- function(D.diff,O.diff,clust.eval, hist,hist2){

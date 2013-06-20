@@ -18,10 +18,8 @@ evalRD15 <- function(dataset,noOfD,noOfO, noInputFeat, alpha){
   num.Terms <- dsize[2]
   
   D.diff <- list() # initialise output lists
-  D2.diff <- list() 
   
   O.diff <- list()
-  O2.diff <- list()
 
   sim <- list()
   iter.list <- list()
@@ -34,7 +32,9 @@ evalRD15 <- function(dataset,noOfD,noOfO, noInputFeat, alpha){
   cross.val <- list()
   hist <- list()
   hist2 <- list()
-  hist3 <- list()
+  RDFeat.orig.1 <- list()
+  RDFeat.orig.2 <- list()
+  
   dataset <- as.matrix(check.data(dataset,noOfD,noOfO)) # check that Dickens is first in set
   
   term.dist <- distribute.RD(dataset, noOfD, noOfO) # check freq. dist. of terms for both sets
@@ -44,7 +44,7 @@ evalRD15 <- function(dataset,noOfD,noOfO, noInputFeat, alpha){
   iterations <- as.integer(num.Docs/5)
   i <- 1
   i2<- 1+4
-  for (l in 1:iterations){
+  for (l in 1:1){
     
     print(l)  # current interation
   
@@ -67,13 +67,11 @@ evalRD15 <- function(dataset,noOfD,noOfO, noInputFeat, alpha){
       }
     
       numOfD <- noOfD-di
-
       numOfnD <- noOfO-oi
     
-    
-    
     diff <- repDis(train.set,numOfD,numOfnD,noInputFeat, alpha)  # do R. and D. selection for curr. training set 
-    
+    RDFeat.orig.1[[l]] <- diff$features.orig
+    RDFeat.orig.2[[l]] <- diff$features.orig.2
     
     RD.old  <- diff$features.1 # get Dickens features and reduce 
     D.feat.p[[l]] <- as.matrix(RD.old[order(RD.old[,1],decreasing = TRUE ),]) # save the orinal set
@@ -94,7 +92,7 @@ evalRD15 <- function(dataset,noOfD,noOfO, noInputFeat, alpha){
     # calculate histogram diff. for RD features: Dickens
     
     for (n in test.doc){
-      print(n)
+    
     D.diff[[n]] <- hist.diff(as.matrix(test.set[n,]),RD.features)
     hist[[n]]  <-hist.diffC(as.matrix(test.set[n,]),RD.features)  # intersection most frequent + normal list each
     
@@ -115,7 +113,7 @@ evalRD15 <- function(dataset,noOfD,noOfO, noInputFeat, alpha){
   
   #----------- sum up results of cross-validation
   
-  hist.results <- cv.results.3(D.diff,O.diff,clust.eval, hist, hist2)
+  hist.results <- cv.results(D.diff,O.diff,clust.eval, hist, hist2)
   
   featConsist <- featureConsistency.2(D.feat)
   featConsist.2 <- featureConsistency.2(O.feat)
@@ -133,6 +131,8 @@ evalRD15 <- function(dataset,noOfD,noOfO, noInputFeat, alpha){
   cross.val[["O.consist"]] <- featConsist.2
   cross.val[["hist"]] <- hist
   cross.val[["hist2"]] <- hist2
+  cross.val[["RD.orig.1"]] <-  RDFeat.orig.1
+  cross.val[["RD.orig.2"]] <-  RDFeat.orig.2
   
   return(cross.val)
   
