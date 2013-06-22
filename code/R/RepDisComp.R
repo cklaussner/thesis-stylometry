@@ -131,7 +131,7 @@ rep.feature[[i]] <- (2/ (abs(numOfP)^2 - abs(numOfP)))* sum(sum.values)
   
   for (i in 1:numOfComps){
     
-    dist.all[[i]] <- c(dist.values[[i]],rep.values[[i]],dist.values[[i]])
+    dist.all[[i]] <- c(dist.values[[i]],rep.values[[i]])
     feature.1[[i]] <- abs(((dist.feature[[i]] - mean(dist.all[[i]]))/sd(dist.all[[i]])) - ((rep.feature[[i]]- mean(dist.all[[i]]))/sd(dist.all[[i]])))
   }
   
@@ -140,7 +140,7 @@ rep.feature[[i]] <- (2/ (abs(numOfP)^2 - abs(numOfP)))* sum(sum.values)
   
   #--- same for Collins/other set
   for (i in 1:numOfComps){
-    dist.all.2[[i]] <- c(dist.values[[i]],rep2.values[[i]],dist.values[[i]])
+    dist.all.2[[i]] <- c(dist.values[[i]],rep2.values[[i]])
     
     feature.2[[i]] <- abs(((dist.feature.2[[i]] - mean(dist.all.2[[i]]))/sd(dist.all.2[[i]])) - ((rep2.feature[[i]]- mean(dist.all.2[[i]]))/sd(dist.all.2[[i]])))
   }

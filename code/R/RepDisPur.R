@@ -3,10 +3,15 @@ repDis <- function(matrixIn,noOfD,noOfC,noOfFeat, alpha){
     prim.set <- matrixIn[1:noOfD, ]
     sec.set <- matrixIn[(noOfD+1):(noOfD+noOfC), ]
   
+    
   
   numOfP <- length(rownames(prim.set))
   numOfS <- length(rownames(sec.set))
   all.terms <- c(colnames(prim.set))[1:noOfFeat]
+    
+    primDiv <- (2/ ((numOfP)^2 - numOfP))
+    secDiv <- (2/ ((numOfS^2) - numOfS))
+    frac <- 1/ ((numOfP)* ((numOfS+numOfP) - numOfP))
  
   #-------- Representativeness: compare features within both sets
   
@@ -29,19 +34,14 @@ repDis <- function(matrixIn,noOfD,noOfC,noOfFeat, alpha){
     #primary set
     for (j in 1:(numOfP-1)){
       
-      if ((prim.set[j,t]) == 0){
-        
-        next
-      }
-      d.1 <- as.double(log(prim.set[j,t]))
+      if ((prim.set[j,t]) == 0){next}
+      
+      d.1 <- as.double((prim.set[j,t]))
       
       for (jj in j+1:(numOfP-j)){
         
-        if ((prim.set[jj,t]) == 0){ 
-          
-          next
-        }
-        d.2 <- as.double(log(prim.set[jj,t]))
+        if ((prim.set[jj,t]) == 0){next}
+        d.2 <- as.double((prim.set[jj,t]))
         
         dist.dd <- abs(d.1-d.2)
         sum.values <- c(sum.values,dist.dd)
@@ -49,7 +49,7 @@ repDis <- function(matrixIn,noOfD,noOfC,noOfFeat, alpha){
     }
     
     rep.values[[t]] <- sum.values
-    rep.feature[t] <- (2/ ((numOfP)^2 - numOfP))* sum(sum.values)
+    rep.feature[t] <- primDiv* sum(sum.values)
    
     
     
@@ -58,18 +58,14 @@ repDis <- function(matrixIn,noOfD,noOfC,noOfFeat, alpha){
     sum.valuesC <- c()
     for (g in 1:(numOfS-1)){
       
-      if ((sec.set[g,t]) == 0){ 
-        next
-      }
-      c.1 <- as.double(log(sec.set[g,t]))
+      if ((sec.set[g,t]) == 0){ next}
+      c.1 <- as.double((sec.set[g,t]))
       
       for (gg in g+1:(numOfS-g)){
         
-        if ((sec.set[gg,t]) == 0){ 
-          next
-        }
+        if ((sec.set[gg,t]) == 0){ next}
         
-        c.2 <- as.double(log(sec.set[gg,t]))
+        c.2 <- as.double((sec.set[gg,t]))
         dist.cc <- abs(c.1-c.2)
         sum.valuesC <- c(sum.valuesC,dist.cc)
       }
@@ -77,7 +73,7 @@ repDis <- function(matrixIn,noOfD,noOfC,noOfFeat, alpha){
     
     
     rep2.values[[t]] <- sum.valuesC
-    rep2.feature[t] <- (2/ ((numOfS^2) - numOfS))* sum(sum.valuesC)
+    rep2.feature[t] <- secDiv* sum(sum.valuesC)
     
     
     
@@ -86,17 +82,13 @@ repDis <- function(matrixIn,noOfD,noOfC,noOfFeat, alpha){
     
     for (l in 1:numOfP){
       
-      if ((prim.set[l,t]) == 0){ 
-        next
-      }
+      if ((prim.set[l,t]) == 0){ next}
       
-     d.2 <- as.double(log(prim.set[l,t]))
+     d.2 <- as.double((prim.set[l,t]))
      for (ll in 1:numOfS){
         
-        if ((sec.set[ll,t]) == 0){ 
-          next
-        }
-          c.2 <- as.double(log(sec.set[ll,t]))
+        if ((sec.set[ll,t]) == 0){ next}
+          c.2 <- as.double((sec.set[ll,t]))
         
         dist.dc <- abs(d.2 -c.2)
         sum.valuesDC <- c(sum.valuesDC,dist.dc)
@@ -106,7 +98,7 @@ repDis <- function(matrixIn,noOfD,noOfC,noOfFeat, alpha){
    
     
       dist.values[[t]] <- sum.valuesDC
-      frac <- 1/ ((numOfP)* ((numOfS+numOfP) - numOfP))
+     
       dist.feature[t] <- frac* sum(sum.valuesDC)
     dist.feature.2[t] <- frac* sum(sum.valuesDC)
     
@@ -129,11 +121,12 @@ repDis <- function(matrixIn,noOfD,noOfC,noOfFeat, alpha){
   #-----Dickens set
   
   for (i in new.terms.1){
-        if (i %in% names(dist.values) && i %in% names(rep.values)){
+        #if (i %in% names(dist.values) && i %in% names(rep.values)){
   
         dist.all[[i]] <- c(dist.values[[i]],rep.values[[i]])
         feature.1[i] <- abs(((dist.feature[[i]] - mean(dist.all[[i]]))/sd(dist.all[[i]])) - ((rep.feature[[i]]- mean(dist.all[[i]]))/sd(dist.all[[i]])))
-        }}
+       # }
+}
   
   feature.1 <- feature.1[feature.1 !="NaN"]
   feature.1 <- feature.1[feature.1 !=0]
@@ -141,24 +134,25 @@ repDis <- function(matrixIn,noOfD,noOfC,noOfFeat, alpha){
   #--- same for Collins/other set
   for (i in new.terms.2){
     
-    if (i %in% names(dist.values) && i %in% names(rep2.values)){
+    #if (i %in% names(dist.values) && i %in% names(rep2.values)){
     dist.all.2[[i]] <- c(dist.values[[i]],rep2.values[[i]])
     
     feature.2[i] <- abs(((dist.feature.2[[i]] - mean(dist.all.2[[i]]))/sd(dist.all.2[[i]])) - ((rep2.feature[[i]]- mean(dist.all.2[[i]]))/sd(dist.all.2[[i]])))
-  }}
+  #}
+  }
   
-  feature.2 <- feature.2[feature.2 !="NaN"]
+ feature.2 <- feature.2[feature.2 !="NaN"]
   feature.2 <- feature.2[feature.2 !=0]
   
   #------select highest no. of terms:  at the moment: everything above mean for set 
   
   mean.1 <- mean(feature.1)
   sd.1 <- sd(feature.1)
-  feature.1.red <- as.matrix(feature.1[feature.1 > (alpha*(mean.1+sd.1))])
+  feature.1.red <- as.matrix(feature.1[feature.1 > ((alpha*mean.1)+sd.1)])
    
   mean.2 <- mean(feature.2)
   sd.2 <- sd(feature.2)
-  feature.2.red <- as.matrix(feature.2[feature.2 > (alpha* (mean.2+sd.2))])
+  feature.2.red <- as.matrix(feature.2[feature.2 > ((alpha* mean.2)+sd.2)])
   
   values <- list()
   values[["features.orig"]] <- feature.1

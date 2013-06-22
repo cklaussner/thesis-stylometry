@@ -2,45 +2,64 @@ library(tm)
 library (plyr)
 library("slam")
 
-source("preprocessing/prepMat.R")
-source("ica/rmvMean.R")
-source("ica/svdMat.R")
-source("ica/pcamat.R")
-source("ica/ica.R")
-source("ica/calcIC.R")
-####"/home/carmen/Dropbox/Thesis/Data/text/SpecializedSet/"
+source("preprocessing/prepFunc.R")
+
+####"/home/carmen/Dropbox/Thesis/Data/text/"
+####"/home/carmen/Dropbox/Thesis/Data/Disputed-Dickens/"
+
+"/home/carmen/Dropbox/Thesis/Data/world-set1/world-set-tabata/"
 
 
-args <- commandArgs(TRUE)
-loc <- (args[1])  
+###FINAl sets
+DickensCollins: "/home/carmen/Dropbox/Thesis/Data/Final-sets/DickensCollins-simple/"
+Worldset: "/home/carmen/Dropbox/Thesis/Data/Final-sets/World/"
+Testdoc: "home/carmen/Dropbox/Thesis/Data/Final-sets/Test-docs/"
+
+
+
+read.csv('my-data-file', row.names=1)
 
 
 ################################## text preprocessing  #######################################
 
-dtm <- prepMat(loc)   # dtm with tf weighting
-spDtm <- removeSparseTerms(dtm, 0.4) # 2nd argument indication of sparsity in matrix 
+dtm <- prepare(loc)   # dtm with tf weighting
+spDtm <- removeSparseTerms(dtm, 0.5) # 2nd argument indication of sparsity in matrix 
+
+nV <- nV[,order(nV[1,],decreasing = TRUE)] # change ordering to most frequent term first 
+
+
+#### change weighting 
+
+Vsize <- dim(nV)
+numOfDocs <- Vsize[1] 
+numOfTerms <- Vsize[2] 
+
+n.relFreq <- matrix(0,nrow=numOfDocs, numOfTerms)
+rownames(n.relFreq) <- rownames(nV)
+colnames(n.relFreq) <- colnames(nV)
+for (n in rownames(nV)){
+  
+  curr.Doc <- nV[n,]
+  w.Token <- sum(curr.Doc) # sum over all tokens in doc
+  w.Type <- length(curr.Doc[curr.Doc != 0]) 
+  
+  for(i in 1:length(curr.Doc)){
+    
+    curr.Val <- curr.Doc[i]
+    
+    rel.Freq <- (curr.Val +1)/ (w.Token+w.Type)
+    
+    n.relFreq[n,i] <- (rel.Freq)
+  }
+  
+}
+nV <- n.relFreq
 
 
 ######################################### ICA ####################################
 
 # input is document term matrix with some kind of frequency weighting ####TODO experiment with different weighting schemes
 
-#############   centering  ############
-
-#dtmCent <- rmvMean(spDtm)
-#mixedMean <- getFeatureMean()
-
-############ whitening ############## 
-
-#pc <- svdMat(dtmCent)  # calculate new components with svd 
-#xwhiten <- getwhiteningMatrix()
-
-#pc <-pcamat(dtmCent) # also works, but svd gives better approx.
-############# ica ###################
-
-
-#ics <- ica(pc,xwhiten, 4)
-#icasig <- calcIC(spDtm,ics,mixedMean)
 
 numOfIC <- 86  # set no. of comp
 keyThres <- 0.1
@@ -157,10 +176,15 @@ for (n in names(docLst)){   # get keywords for each document
   
     }
   names(keylist) <- rownames(keylist)
-  keylist <- keylist[keylist >0]
+  keylist <- as.matrix(keylist[keylist >0])
+  keylist <- keylist[order(keylist[,1],decreasing = TRUE ),]
   docTopics[[n]] <- as.matrix(keylist)
   
 }
+
+
+
+
 
 docTopics.neg <- list()
 
@@ -227,7 +251,7 @@ for (d in names(terms)) {
 terms.order <- terms.count[order(terms.count[,1],decreasing = TRUE ),]    # order doc sets according to freq.
 termsS.order  <- terms.countS[order(terms.countS[,1],decreasing = TRUE ),]
 
-print(termsS.order)
+
 
 finalKeysD <- as.matrix(terms.order)[1:maxTerms,1]
 finalKeysC <- as.matrix(termsS.order)[1:maxTerms,1]

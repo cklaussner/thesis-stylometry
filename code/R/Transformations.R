@@ -40,6 +40,39 @@ for (n in rownames(nV)){
 nV <- n.relFreq
 
 
+
+
+
+
+
+
+
+-----------------------------------------
+  
+  
+  hist.res <- diff$hist.res
+cv <- diff$cv
+sim <- diff$sim
+feat <- diff$feat
+D.feat <- diff$D.feat
+O.feat <- diff$O.feat
+D.feat.O <- diff$D.feat.O
+O.feat.O <-  diff$O.feat.O
+D.consist <- diff$D.consist
+O.consist <- diff$O.consist
+hist <- diff$hist
+hist2 <- diff$hist2
+
+
+
+save(hist.res,cv,sim,feat,D.feat,O.feat,
+     D.feat.O,O.feat.O,D.consist,O.consist,hist,hist2, 
+     file='DCTabata4999.rda')
+
+
+-----------------------------------------------------
+
+
 #-------------Evaluation
 
 dickens.list <- names(diff$Dickens)[substr((names(diff$Dickens)),1,1) == "D"]
