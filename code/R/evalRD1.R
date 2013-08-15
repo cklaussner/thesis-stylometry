@@ -15,11 +15,7 @@ evalRD1 <- function(dataset,noOfD,noOfO, noInputFeat, alpha){
   num.Terms <- dsize[2]
   
   D.diff <- list() # initialise output lists
-  D2.diff <- list() 
-  D3.diff <- list() 
   O.diff <- list()
-  O2.diff <- list()
-  O3.diff <- list()
   sim <- list()
   
   D.feat <- list()
@@ -30,7 +26,7 @@ evalRD1 <- function(dataset,noOfD,noOfO, noInputFeat, alpha){
   cross.val <- list()
   hist <- list()
   hist2 <- list()
-  hist3 <- list()
+  
   dataset <- as.matrix(check.data(dataset,noOfD,noOfO)) # check that Dickens is first in set
   
   term.dist <- distribute.RD(dataset, noOfD, noOfO) # check freq. dist. of terms for both sets
@@ -92,29 +88,22 @@ for (i in 1:1){
    sim[[test.doc]]<- sim.DO
    clust.eval[[test.doc]] <- cr
    
-  d  <- as.matrix(RD.old[intersect(inter.feat,d.terms),])   # rep features + frequent features each
-  nd  <- as.matrix(RD.old[intersect(inter.feat,nd.terms),])
-  D2.diff[[test.doc]] <- hist.diff(test.set,d)
-  O2.diff[[test.doc]] <- hist.diff(test.set,nd)
-  
-  D3.diff[[test.doc]] <- hist.diff(test.set,RD.old)
-  O3.diff[[test.doc]] <- hist.diff(test.set,RD2.old)
   
  }
   
  #----------- sum up results of cross-validation
   
-  hist.results <- cv.results(D.diff,O.diff,clust.eval)
-  hist2.results <- cv.results(D2.diff,O2.diff,clust.eval)
-  hist3.results <- cv.results(D3.diff,O3.diff,clust.eval)
-  
+  hist.results <- cv.results(D.diff,O.diff,clust.eval,hist,hist2)
+ 
   featConsist <- featureConsistency(D.feat)
   featConsist.2 <- featureConsistency(O.feat)
   
   
 cross.val[["hist.res"]] <- hist.results
-cross.val[["hist2.res"]] <- hist2.results
-cross.val[["hist3.res"]] <- hist3.results
+cross.val[["D.diff"]] <- D.diff
+cross.val[["O.diff"]] <- O.diff
+  
+cross.val[["clust.eval"]] <- clust.eval
 cross.val[["sim"]] <- sim
 cross.val[["feat"]] <- inter.feat
 cross.val[["D.feat"]] <- D.feat

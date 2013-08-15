@@ -121,11 +121,11 @@ repDis <- function(matrixIn,noOfD,noOfC,noOfFeat, alpha){
   #-----Dickens set
   
   for (i in new.terms.1){
-        #if (i %in% names(dist.values) && i %in% names(rep.values)){
+        if (i %in% names(dist.values) && i %in% names(rep.values)){
   
         dist.all[[i]] <- c(dist.values[[i]],rep.values[[i]])
         feature.1[i] <- abs(((dist.feature[[i]] - mean(dist.all[[i]]))/sd(dist.all[[i]])) - ((rep.feature[[i]]- mean(dist.all[[i]]))/sd(dist.all[[i]])))
-       # }
+       }
 }
   
   feature.1 <- feature.1[feature.1 !="NaN"]
@@ -134,11 +134,11 @@ repDis <- function(matrixIn,noOfD,noOfC,noOfFeat, alpha){
   #--- same for Collins/other set
   for (i in new.terms.2){
     
-    #if (i %in% names(dist.values) && i %in% names(rep2.values)){
+    if (i %in% names(dist.values) && i %in% names(rep2.values)){
     dist.all.2[[i]] <- c(dist.values[[i]],rep2.values[[i]])
     
     feature.2[i] <- abs(((dist.feature.2[[i]] - mean(dist.all.2[[i]]))/sd(dist.all.2[[i]])) - ((rep2.feature[[i]]- mean(dist.all.2[[i]]))/sd(dist.all.2[[i]])))
-  #}
+  }
   }
   
  feature.2 <- feature.2[feature.2 !="NaN"]
@@ -148,11 +148,11 @@ repDis <- function(matrixIn,noOfD,noOfC,noOfFeat, alpha){
   
   mean.1 <- mean(feature.1)
   sd.1 <- sd(feature.1)
-  feature.1.red <- as.matrix(feature.1[feature.1 > ((alpha*mean.1)+sd.1)])
+  feature.1.red <- as.matrix(feature.1[feature.1 > ((mean.1+sd.1)*alpha)])
    
   mean.2 <- mean(feature.2)
   sd.2 <- sd(feature.2)
-  feature.2.red <- as.matrix(feature.2[feature.2 > ((alpha* mean.2)+sd.2)])
+  feature.2.red <- as.matrix(feature.2[feature.2 > ((mean.2+sd.2)*alpha)])
   
   values <- list()
   values[["features.orig"]] <- feature.1

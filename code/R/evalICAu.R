@@ -16,7 +16,7 @@ evalICAu <- function(dataset,noOfD,noOfnD){
   
   # run ICA only once, since it's unsupervised this is ok!
   Y<- fastICA(dataset, numOfIC, alg.typ = "deflation",
-              fun = "exp", alpha = 1.0, method = "R",
+              fun = "exp", alpha = 1.0, method = "C",
               row.norm = TRUE, maxit = 200, tol = 1e-04, verbose = TRUE,
               w.init = NULL)
   
@@ -57,11 +57,12 @@ evalICAu <- function(dataset,noOfD,noOfnD){
     dis.Comp <- getDisCompThres(train.set) # get discriminative components based on threshold
     
     docLst <- getDisCompComb(train.set,dis.Comp) # simple retrieval of comp-doc weights for discriminatory components 
-    docLst[[test.doc]] <- test.set
+    #docLst[[test.doc]] <- test.set
     
-    docTopics <- combineWeights(dataset,comp.List,docLst) # term-in-document weight combination
-    test.terms <- as.matrix(docTopics[[test.doc]]) # extract test doc
-    docTopics[test.doc] <- NULL  # delete from train.set
+    docTopics <- combineWeights(train.set,comp.List,docLst) # term-in-document weight combination
+    #test.terms <- as.matrix(docTopics[[test.doc]]) # extract test doc
+    #docTopics[test.doc] <- NULL  # delete from train.set
+    
     
     
     profiles <- getProfile(docTopics, 2.5) # get profiles for Dickens/ nonDickens, discard terms at mean by e.g. 2.5 

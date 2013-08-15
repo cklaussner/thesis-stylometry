@@ -1,6 +1,12 @@
 library(psych)
 # Matrix Transformations
 
+
+
+
+
+# cbind(as.matrix(d1[1:30]),as.matrix(d2[1:30]), as.matrix(d3[1:30]),as.matrix(d4[1:30]),as.matrix(d5[1:30]))
+
 #-- change dtm term weighting with log.
 
 nV <- nV[,order(nV[1,],decreasing = TRUE)] # this is just ordering according to first row= 1. doc, maybe not represenatative 
@@ -18,7 +24,7 @@ Vsize <- dim(nV)
 numOfDocs <- Vsize[1] 
 numOfTerms <- Vsize[2] 
 
-n.relFreq <- matrix(0,nrow=numOfDocs, numOfTerms)
+n.relFreq <- matrix(0,nrow=numOfDocs,ncol= numOfTerms)
 rownames(n.relFreq) <- rownames(nV)
 colnames(n.relFreq) <- colnames(nV)
 for (n in rownames(nV)){
@@ -43,15 +49,11 @@ nV <- n.relFreq
 
 
 
-
-
-
-
 -----------------------------------------
   
   
-  hist.res <- diff$hist.res
-cv <- diff$cv
+hist.res <- diff$hist.res
+clust.eval <- diff$cv
 sim <- diff$sim
 feat <- diff$feat
 D.feat <- diff$D.feat
@@ -129,11 +131,42 @@ summary(nV.pca)
 nV.latent <- nV.pca$rotation
 signif(sort(nV.latent[,1],decreasing=TRUE)[1:30],2) # 1 st component
 
+
 pdf("file.pdf")
-plot(nV.pca$x[,1:2], main = "Dickens vs. Collins", xlab= "PC1: +the +her +she +which +from -and -but -that -upon", ylab= "PC2: +her +you +she +had +your -and -the -their -they", type= "n")
-points(nV.pca$x[1:55,1:2],pch="D",col="blue")
-points(nV.pca$x[56:86,1:2],pch="C",col="green")
+plot(nV.pca$x[,1:2],  type= "n")
+main = "Dickens vs. Collins", xlab= "PC1:+and +but +that +upon +very -the -her -she -you", ylab= "PC2:+you +her +she +said +what -the -and -their -they ", type= "n")
+#points(nV.pca$x[1:29,1:2],pch="C",col="blue")
+#points(nV.pca$x[30:74,1:2],pch="D",col="green")
 dev.off()
 
 
-biplot(nV.pca, main = "Dickens vs. Collins",xlabs=c, cex= 0.7)
+biplot(nV.pca, main = "Dickens vs. Collins", col= c("black","red"), cex= 0.7)
+
+
+t.test(c1,d1,paired= TRUE, alternative="greater")
+
+
+D.diff <- diff$D.diff
+O.diff <- diff$O.diff
+clust.eval <- diff$clust.eval
+hist <- diff$hist
+hist2 <- diff$hist2
+
+
+############
+
+
+D.diff <- diff$D.diff
+O.diff <- diff$O.diff
+clust.eval <- diff$cv
+hist <- diff$hist
+hist2 <- diff$hist2
+
+D.feat.O <- diff$D.feat.O
+O.feat.O <- diff$O.feat.O
+
+D.diff <- D$D.diff
+O.diff <- D$O.diff
+clust.eval <- D$cv
+hist <- D$hist
+hist2 <- D$hist2

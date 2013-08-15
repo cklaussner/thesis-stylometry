@@ -1,4 +1,4 @@
-#library(tm)  
+library(tm)  
 #library (plyr)
 
 source("preprocessing/prepFunc.R") # import preprocessing functions

@@ -22,17 +22,20 @@ for(i in 1:numOfIC){   # select keywords in components according to weight
   tmp <- as.matrix(A[i, ]) #get all term weights for one component 
   names(tmp) <- rownames(tmp)
   
-  #terms.pos <- as.matrix(tmp[tmp> term.thres]) # only retain terms above term threshold
+  terms.pos <- as.matrix(tmp[tmp> term.thres])# only retain terms above term threshold
+  #terms.pos <- as.matrix(terms.pos[order(terms.pos[,1],decreasing = TRUE ),])
   
-  #terms.neg <- as.matrix(tmp[tmp < (-term.thres)]) # only retain terms below - term threshold - so high negative association
+  terms.neg <- as.matrix(tmp[tmp < (-term.thres)]) # only retain terms below - term threshold - so high negative association
   
-  terms.pos <- as.matrix(tmp) # only retain terms above term threshold
+  #terms.pos <- as.matrix(tmp) # only retain terms above term threshold
   
-  terms.neg <- as.matrix(tmp) # only retain terms below - term threshold - so high negative association
+  #terms.neg <- as.matrix(tmp) # only retain terms below - term threshold - so high negative association
+  
+  terms.all <- rbind(terms.pos,terms.neg)
+  terms.all <- as.matrix(terms.all[order(terms.all[,1],decreasing = TRUE ),])
   
   
-  
-  compLst[[i]] <-  rbind(terms.pos,terms.neg)     # add to overall comp list
+  compLst[[i]] <-  terms.all     # add to overall comp list
 
 }
  
@@ -162,6 +165,7 @@ return(docTopics)
 
 
 getProfile <- function(docTopics, alpha){
+  profiles <- list()
 
   D.termlist <- list()
   nD.termlist <- list()
@@ -192,9 +196,11 @@ getProfile <- function(docTopics, alpha){
     D.profile[t,] <- mean(D.termlist[[t]])
   }
   names(D.profile)<- rownames(D.profile)
+  profiles[["D.old"]] <- D.profile
+  D.sd <- sd(abs(D.profile)) 
+  D.profile <- D.profile[abs(D.profile)> (((mean(abs(D.profile)))+D.sd)*alpha)]
+  #D.profile <- D.profile[abs(D.profile)> (((mean(abs(D.profile)))*alpha)+D.sd)]
   
-  D.profile <- D.profile[abs(D.profile)> (mean(abs(D.profile))*alpha)]
- 
   ###################beginning of nonDickens profile selection
   for (n in nonDickens.list){
     #nonDickens profile
@@ -219,11 +225,13 @@ getProfile <- function(docTopics, alpha){
     nD.profile[t,] <- mean(nD.termlist[[t]])
   }
   names(nD.profile)<- rownames(nD.profile)
+  profiles[["nD.old"]] <- nD.profile
+  nD.sd <- sd(abs(nD.profile)) 
+  nD.profile <- nD.profile[abs(nD.profile)> (((mean(abs(nD.profile)))+nD.sd)*alpha)]
+  #nD.profile <- nD.profile[abs(nD.profile)> (((mean(abs(nD.profile)))*alpha)+nD.sd)]
   
-  nD.profile <- nD.profile[abs(nD.profile)> (mean(abs(nD.profile))*alpha)]
-
- profiles <- list()
- profiles[["D"]] <- D.profile
+ 
+profiles[["D"]] <- D.profile
 profiles[["nD"]] <- nD.profile
 return(profiles)
 }

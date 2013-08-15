@@ -40,6 +40,7 @@ featureConsistency <- function(feature.list){
   }
  results["mean", 1] <- round(mean(sum.feat))
 results["std.", 1] <- round(sd(sum.feat))
+  #results["SE.", 2] <- round(sd(sum.int/sqrt(length(sum.int))))
   
   if (length(feature.list)>1){
   intersect <- rownames(feature.list[[1]]) 
@@ -52,6 +53,7 @@ results["std.", 1] <- round(sd(sum.feat))
   }
   results["mean", 2] <- round(mean(sum.int))
   results["std.", 2] <- round(sd(sum.int))
+  #results["SE.", 2] <- round(sd(sum.int/sqrt(length(sum.int))))
   consist[["intersect"]] <- intersect
 }
   consist[["results"]] <- results
@@ -77,6 +79,7 @@ featureConsistency.2 <- function(feature.list){
   }
   results["mean", 1] <- round(mean(sum.feat))
   results["std.", 1] <- round(sd(sum.feat))
+  #results["SE.", 1] <- round(sd(sum.feat)/sqrt(length(sum.feat)))
   
   if (length(feature.list)>1){
     intersect <- rownames(feature.list[[1]]) 
@@ -89,6 +92,7 @@ featureConsistency.2 <- function(feature.list){
     }
     results["mean", 2] <- round(mean(sum.int))
     results["std.", 2] <- round(sd(sum.int))
+    #results["SE.", 2] <- round(sd(sum.int/sqrt(length(sum.int))))
     consist[["intersect"]] <- intersect
   }
   consist[["results"]] <- results
@@ -97,8 +101,7 @@ featureConsistency.2 <- function(feature.list){
 }
 
 
-
-
+#sd(sum.int/length(sum.int)
 
 # computes combination of various dissim. Matrices for a list of features 
 dissim.Matrix <- function(input,RD.features){
@@ -216,7 +219,7 @@ d <- D.diff
 c <- O.diff
 
 for (n in nonDickens.list){
-  ttest <- (t.test(hist2[[n]],hist[[n]],alternative="greater"))
+  ttest <- (t.test(hist[[n]],hist2[[n]],alternative="greater")) 
   results.2[n,5] <- ttest$p.value # we assume Dickens to have larger difference 
   results.2[n,6] <- ttest$conf.int[1]
   results.2[n,7] <- ttest$conf.int[2]
@@ -260,7 +263,7 @@ cv.results.3 <- function(D.diff,O.diff,clust.eval, hist,hist2){
   results <- matrix(0, nrow = dsize+4,ncol=7)
   rownames(results) <- c(dickens.list,"mean","sum","sd","SE")
   
-  colnames(results) <- c("Dist.D.","Dist.nD.","(Dist.nD-Dist.D)", "adjust.Rand", "p-val.","conf-int-low","conf-int-high")
+  colnames(results) <- c("Dist.D.","Dist.nD.","(Dist.nD-Dist.D)","adjust.Rand", "p-val.","conf-int-low","conf-int-high")
   d <- D.diff
   c <- O.diff
   
@@ -319,7 +322,7 @@ cv.results.3 <- function(D.diff,O.diff,clust.eval, hist,hist2){
        results.2[osize+1,] <- c(mean(results.2[1:osize,1]),mean(results.2[1:osize,2]),mean(results.2[1:osize,3]),mean(results.2[1:osize,4][results.2[1:osize,4]!=0]),ttest.whole$p.value,ttest.whole$conf.int[1],ttest.whole$conf.int[2])
       results.2[osize+2,1:4] <- c(sum(results.2[1:osize,1]),sum(results.2[1:osize,2]),sum(results.2[1:osize,3]),sum(results.2[1:osize,4]))
        results.2[osize+3,1:4]  <- c(sd(results.2[1:osize,1]),sd(results.2[1:osize,2]),sd(results.2[1:osize,3]),sd(results.2[1:osize,4]))
-       results.2[osize+4,1:4]  <- c(sd(results.2[1:osize,1]/sqrt(osize)),sd(results[1:osize,2]/sqrt(osize)),sd(results.2[1:osize,3]/sqrt(osize)),sd(results.2[1:osize,4]/sqrt(osize)))
+       results.2[osize+4,1:4]  <- c(sd(results.2[1:osize,1]/sqrt(osize)),sd(results.2[1:osize,2]/sqrt(osize)),sd(results.2[1:osize,3]/sqrt(osize)),sd(results.2[1:osize,4]/sqrt(osize)))
        
     }
     cv[["nonDickens"]] <- results.2
@@ -348,11 +351,14 @@ rownames(freq.list) <- colnames(dataset)
 colnames(freq.list) <- c("D","nD")
 d.terms <- c()
 nd.terms <- c()
- 
+  
+prim.size <- dim(prim.set)[1]
+sec.size <- dim(sec.set)[1]
+  
 for (l in colnames(prim.set)){
   
-  D <- sum(prim.set[,l])/sum(prim.set)
- nD <- sum(sec.set[,l])/sum(sec.set)
+  D <- sum(prim.set[,l])/prim.size
+ nD <- sum(sec.set[,l])/sec.size
   
   freq.list[l,1] <- D
   freq.list[l,2] <- nD

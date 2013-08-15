@@ -1,6 +1,6 @@
 # evalRD1-5 cross-validation
 
-#read.csv('DickensCollins74.cvs', row.names=1)
+#read.csv('world.csv', row.names=1)
 source("RepDisPur.R")
 source("functions.R")
 # Evaluation of Representativeness - Distinctiveness pure and simple 
@@ -9,6 +9,8 @@ source("functions.R")
 
 #diff <- evalRD15(nV,45,29,1500, 1.1)
 #diff <- evalRD15(nV,45,29,1500, 1.1)
+
+diff <- evalRD15(wM,24,55,1431, 1)
 
 
 evalRD15 <- function(dataset,noOfD,noOfO, noInputFeat, alpha){
@@ -35,7 +37,7 @@ evalRD15 <- function(dataset,noOfD,noOfO, noInputFeat, alpha){
   hist2 <- list()
   RDFeat.orig.1 <- list()
   RDFeat.orig.2 <- list()
-  inter.feat.col <- list
+  inter.feat.col <- list()
   
   dataset <- as.matrix(check.data(dataset,noOfD,noOfO)) # check that Dickens is first in set
   
@@ -46,7 +48,7 @@ evalRD15 <- function(dataset,noOfD,noOfO, noInputFeat, alpha){
   iterations <- as.integer(num.Docs/5)
   i <- 1
   i2<- 1+4
-  for (l in 1:2){
+  for (l in 1:1){
     
     print(l)  # current interation
   
@@ -71,8 +73,8 @@ evalRD15 <- function(dataset,noOfD,noOfO, noInputFeat, alpha){
       numOfD <- noOfD-di
       numOfnD <- noOfO-oi
     
-    diff <- repDis(log(train.set),numOfD,numOfnD,noInputFeat, alpha)  # do R. and D. selection for curr. training set 
-    #diff <- repDis(train.set,numOfD,numOfnD,noInputFeat, alpha) 
+    #diff <- repDis(log(train.set),numOfD,numOfnD,noInputFeat, alpha)  # do R. and D. selection for curr. training set 
+    diff <- repDis(train.set,numOfD,numOfnD,noInputFeat, alpha) 
    
     RDFeat.orig.1[[l]] <- diff$features.orig
     RDFeat.orig.2[[l]] <- diff$features.orig.2
@@ -118,13 +120,12 @@ evalRD15 <- function(dataset,noOfD,noOfO, noInputFeat, alpha){
   
   #----------- sum up results of cross-validation
   
-  hist.results <- cv.results(D.diff,O.diff,clust.eval, hist, hist2)
+  #hist.results <- cv.results.3(D.diff,O.diff,clust.eval, hist, hist2)
   
-  featConsist <- featureConsistency.2(D.feat.p)
-  featConsist.2 <- featureConsistency.2(O.feat.p)
+  #featConsist <- featureConsistency.2(D.feat.p)
+  #featConsist.2 <- featureConsistency.2(O.feat.p)
   
-  
-  cross.val[["hist.res"]] <- hist.results
+  #cross.val[["hist.res"]] <- hist.results
   cross.val[["cv"]] <- clust.eval
   cross.val[["sim"]] <- sim
   cross.val[["inter.feat"]] <- inter.feat.col
@@ -132,12 +133,18 @@ evalRD15 <- function(dataset,noOfD,noOfO, noInputFeat, alpha){
   cross.val[["O.feat"]] <- O.feat
   cross.val[["D.feat.O"]] <- D.feat.p
   cross.val[["O.feat.O"]] <- O.feat.p
-  cross.val[["D.consist"]] <- featConsist
-  cross.val[["O.consist"]] <- featConsist.2
+  cross.val[["D.diff"]] <- D.diff
+  cross.val[["O.diff"]] <- O.diff
+  #cross.val[["D.consist"]] <- featConsist
+  #cross.val[["O.consist"]] <- featConsist.2
   cross.val[["hist"]] <- hist
   cross.val[["hist2"]] <- hist2
   cross.val[["RD.orig.1"]] <-  RDFeat.orig.1
   cross.val[["RD.orig.2"]] <-  RDFeat.orig.2
+  
+  
+  
+  
   
   return(cross.val)
   
